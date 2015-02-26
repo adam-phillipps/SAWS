@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @contract.name
+%p
+  %b Instance:
+  = @contract.instance_id
+%p
+  %b Smash client:
+  = @contract.smash_client
+
+= link_to 'Edit', edit_contract_path(@contract)
+\|
+= link_to 'Back', contracts_path

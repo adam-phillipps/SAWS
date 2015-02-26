@@ -1,0 +1,23 @@
+%h1 Listing smash_clients
+
+%table
+  %thead
+    %tr
+      %th Name
+      %th User
+      %th
+      %th
+      %th
+      
+  %tbody
+    - @smash_clients.each do |smash_client|
+      %tr
+        %td= smash_client.name
+        %td= smash_client.user
+        %td= link_to 'Show', smash_client
+        %td= link_to 'Edit', edit_smash_client_path(smash_client)
+        %td= link_to 'Destroy', smash_client, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Smash client', new_smash_client_path

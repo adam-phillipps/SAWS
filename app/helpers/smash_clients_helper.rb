@@ -1,0 +1,2 @@
+module SmashClientsHelper
+end

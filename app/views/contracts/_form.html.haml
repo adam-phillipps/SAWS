@@ -1,0 +1,19 @@
+= form_for @contract do |f|
+  - if @contract.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@contract.errors.count, "error")} prohibited this contract from being saved:"
+      %ul
+        - @contract.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :name
+    = f.text_field :name
+  .field
+    = f.label :instance_id
+    = f.text_field :instance_id
+  .field
+    = f.label :smash_client
+    = f.text_field :smash_client
+  .actions
+    = f.submit 'Save'

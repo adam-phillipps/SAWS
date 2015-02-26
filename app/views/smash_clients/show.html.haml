@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @smash_client.name
+%p
+  %b User:
+  = @smash_client.user
+
+= link_to 'Edit', edit_smash_client_path(@smash_client)
+\|
+= link_to 'Back', smash_clients_path
