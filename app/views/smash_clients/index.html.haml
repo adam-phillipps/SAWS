@@ -1,4 +1,4 @@
-%h1 Listing smash_clients
+%h1 Listing your Amazon clients
 
 %table
   %thead
@@ -17,7 +17,7 @@
         %td= link_to 'Show', smash_client
         %td= link_to 'Edit', edit_smash_client_path(smash_client)
         %td= link_to 'Destroy', smash_client, :method => :delete, :data => { :confirm => 'Are you sure?' }
-
+/ =%console
 %br
 
 = link_to 'New Smash client', new_smash_client_path

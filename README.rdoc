@@ -1,4 +1,6 @@
 == README
+* Github repo
+https://github.com/adam-phillipps/saws
 
 This README would normally document whatever steps are necessary to get the
 application up and running.
@@ -6,20 +8,47 @@ application up and running.
 Things you may want to cover:
 
 * Ruby version
+	ruby 2.1.2p95 (2014-05-08 revision 45877) [x86_64-darwin13.0]
 
 * System dependencies
+	i bet there are quite a few.....we'll find out
 
 * Configuration
+	yes...this will also be a very 'fun' section to fill out.
 
 * Database creation
+	# uses default Rails default sqlite3
 
 * Database initialization
 
 * How to run the test suite
+	# biunno.....somehow.  i'll get to that later.
 
 * Services (job queues, cache servers, search engines, etc.)
+	# nope and probably won't be seeing something in here for some time, if ever.
 
 * Deployment instructions
+
+	echo "gem 'haml-rails', '~> 0.8'" >> Gemfile
+	echo "gem 'devise'" >> Gemfile
+	bundle install
+	rails generate devise:install
+	rails generate devise user
+	rails generate devise:views users
+	rails g scaffold Contract name:string instance_id:string smash_client:string
+	rails g scaffold SmashClient name:string user:string
+	rails generate haml:application_layout convert
+	remove app/views/layout/application.html.erb
+	rake haml:erb2haml
+	rake db:migrate
+	- add site-admin user to db/seeds.rb
+		#describe User do
+	  	  #let :user do
+		      #User.create!(email: 'adam.phillipps@gmail.com', password: 'password')
+		    #end
+		  #end
+	- add to config/environments/development.rb
+		config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 
 * ...
 

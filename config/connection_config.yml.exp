@@ -1,0 +1,16 @@
+---
+:default: &DEFAULT
+  :access_key_id: 'smash low rights key'
+  :secret_access_key: 'smash low rights secret'
+#  :region: 'default_region'
+  :regions: &REGIONS
+  - 'region1'
+  - 'region2'
+  - 'region3'
+add_your_user_name:
+  :access_key_id: 'aws key'
+  :secret_access_key: 'aws secret'
+  :regions: &REGIONS
+  - 'awesome region 1'
+  - 'amazing region 2'
+  - 'astounding region 3'
