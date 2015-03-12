@@ -1,40 +1,24 @@
 class SmashClientsController < ApplicationController
-  before_action :authenticate_user!
-  before_action :set_smash_client, only: [:index, :new, :update, :create_spot]#, :new]
+  before_action :set_smash_client, only: [:show, :edit, :update, :destroy]
 
   # GET /smash_clients
   # GET /smash_clients.json
   def index
-    @smash_clients = SmashClient.where(user: current_user[:email])
-    unless @smash_clients.count > 0
-
-    end
-    @smash_clients
-#    @smash_clients = sc.count.eql? 0 ?  (render :new) : sc
+    @smash_clients = SmashClient.all
   end
 
   # GET /smash_clients/1
   # GET /smash_clients/1.json
   def show
-    render :index
   end
 
   # GET /smash_clients/new
   def new
-    byebug
-    unless !user_signed_in?
-      @smash_client = SmashClient.new(params[:smash_client])
-      if @smash_client.save!
-        redirect_to smash_clients_path, notice: "new client created: #{@smash_client.name}\n"
-      else
-        render :new_user_session
-      end
-    end
+    @smash_client = SmashClient.new
   end
 
   # GET /smash_clients/1/edit
   def edit
-    puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\nhere here here here"
   end
 
   # POST /smash_clients
@@ -78,18 +62,13 @@ class SmashClientsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_smash_client
-    byebug
-    @smash_client = SmashClient.find(params[:id])
-  end
+    # Use callbacks to share common setup or constraints between actions.
+    def set_smash_client
+      @smash_client = SmashClient.find(params[:id])
+    end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def smash_client_params
-    params.require(:smash_client).permit(:name, :user)
-  end
-
-  def create_spot
-    {name: 'you created something here, you really did'}
-  end
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def smash_client_params
+      params.require(:smash_client).permit(:name, :user)
+    end
 end

@@ -1,14 +1,22 @@
 Rails.application.routes.draw do
+  resources :contracts
+
+  resources :smash_clients
+
+  # You can have the root of your site routed with "root"
+   root 'smash_clients#index'
+
   resources :smash_clients, :contracts
   
   devise_for :users
 
-    # You can have the root of your site routed with "root"
-   root 'smash_clients#index'
+  as :user do # as is an alias for devise_scope
+    get "/login" => "devise/sessions#new"
+  end
+
+
   
-#  as :user do # as is an alias for devise_scope
-#    get "/login" => "devise/sessions#new"
-#  end
+
   
 #  as :user do #devise_scope :user do
 #    delete "/logout" => "devise/sessions#destroy"
