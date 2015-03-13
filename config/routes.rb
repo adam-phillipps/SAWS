@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
+  # users get authed before being allowed further
   root 'smash_clients#index'
+
+  # urls /smash_clients/:id/contract
   resources :smash_clients do
       resources :contracts
   end
