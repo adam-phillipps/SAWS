@@ -1,12 +1,10 @@
 Rails.application.routes.draw do
-  resources :contracts
-
-  resources :smash_clients
-
   # You can have the root of your site routed with "root"
-   root 'smash_clients#index'
+  root 'smash_clients#index'
 
-  resources :smash_clients, :contracts
+  resources :smash_clients do
+    resources :contracts
+  end
   
   devise_for :users
 
