@@ -1,10 +1,14 @@
 class SmashClientsController < ApplicationController
   before_action :set_smash_client, only: [:show, :edit, :update, :destroy]
-
+  before_action :authenticate_user!
   # GET /smash_clients
   # GET /smash_clients.json
   def index
-    @smash_clients = SmashClient.all
+    if user_signed_in?
+      @smash_clients = SmashClient.all
+    else
+      redirect_to users_path
+    end
   end
 
   # GET /smash_clients/1
