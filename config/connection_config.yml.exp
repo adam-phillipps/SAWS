@@ -1,0 +1,16 @@
+---
+:default: &DEFAULT
+  :access_key_id: 'smash low rights key'
+  :secret_access_key: 'smash low rights secret'
+#  :region: 'default_region'
+  :regions: &REGIONS
+  - 'region1'
+  - 'region2'
+  - 'region3'
+adam:
+  :access_key_id: 'yoru key here'
+  :secret_access_key: 'your secret here'
+  :regions: &REGIONS
+  - 'us-west-2'
+  - 'us-west-1'
+  - 'us-east-1'
