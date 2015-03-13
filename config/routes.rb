@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
-  resources :smash_clients
-
-  resources :contracts
+  root 'smash_clients#index'
+  resources :smash_clients do
+      resources :contracts
+  end
 
   devise_for :users
   # The priority is based upon order of creation: first created -> highest priority.
