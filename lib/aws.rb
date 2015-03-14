@@ -1,0 +1,2 @@
+module Aws
+end

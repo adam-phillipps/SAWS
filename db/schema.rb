@@ -41,13 +41,11 @@ ActiveRecord::Schema.define(version: 20150313205016) do
     t.string   "last_sign_in_ip"
     t.string   "password"
     t.string   "email"
-    t.string   "username"
     t.string   "user_name"
   end
 
   add_index "users", ["name"], name: "index_users_on_name", unique: true
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   add_index "users", ["user_name"], name: "index_users_on_user_name", unique: true
-  add_index "users", ["username"], name: "index_users_on_username", unique: true
 
 end

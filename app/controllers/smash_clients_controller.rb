@@ -5,7 +5,7 @@ class SmashClientsController < ApplicationController
   # GET /smash_clients.json
   def index
     if user_signed_in?
-      @smash_clients = SmashClient.all
+      @smash_clients = SmashClient.where(user: current_user.user_name)
     else
       redirect_to users_path
     end
@@ -18,7 +18,7 @@ class SmashClientsController < ApplicationController
 
   # GET /smash_clients/new
   def new
-    @smash_client = SmashClient.new
+    @smash_client = SmashClient.new(user: current_user.user_name)
   end
 
   # GET /smash_clients/1/edit
@@ -28,8 +28,9 @@ class SmashClientsController < ApplicationController
   # POST /smash_clients
   # POST /smash_clients.json
   def create
+    byebug
     @smash_client = SmashClient.new(smash_client_params)
-
+    @smash_client.user = current_user.user_name
     respond_to do |format|
       if @smash_client.save
         format.html { redirect_to @smash_client, notice: 'Smash client was successfully created.' }
