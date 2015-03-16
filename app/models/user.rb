@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+  has_many :smash_clients
   attr_accessor :login
   # adds case insensitivity to validations on user_name
   validates :user_name,

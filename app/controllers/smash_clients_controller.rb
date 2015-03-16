@@ -5,7 +5,7 @@ class SmashClientsController < ApplicationController
   # GET /smash_clients.json
   def index
     if user_signed_in?
-      @smash_clients = SmashClient.where(user: current_user.user_name)
+      @smash_clients = SmashClient.where( user: current_user.user_name )
     else
       redirect_to users_path
     end
@@ -18,7 +18,8 @@ class SmashClientsController < ApplicationController
 
   # GET /smash_clients/new
   def new
-    @smash_client = SmashClient.new(user: current_user.user_name)
+    byebug
+    @smash_client = SmashClient.new
   end
 
   # GET /smash_clients/1/edit
@@ -29,7 +30,7 @@ class SmashClientsController < ApplicationController
   # POST /smash_clients.json
   def create
     byebug
-    @smash_client = SmashClient.new(smash_client_params)
+    @smash_client = SmashClient.create!( smash_client_params )
     @smash_client.user = current_user.user_name
     respond_to do |format|
       if @smash_client.save
@@ -40,6 +41,7 @@ class SmashClientsController < ApplicationController
         format.json { render json: @smash_client.errors, status: :unprocessable_entity }
       end
     end
+    @smash_client.make_instance
   end
 
   # PATCH/PUT /smash_clients/1
@@ -74,6 +76,7 @@ class SmashClientsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def smash_client_params
+      byebug
       params.require(:smash_client).permit(:name, :user)
     end
 end
