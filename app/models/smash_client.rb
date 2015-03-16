@@ -3,7 +3,6 @@ class SmashClient < ActiveRecord::Base
   attr_accessor :name
 
   def make_instance
-    byebug
     connect
     Contract.new(self.name)
 

@@ -18,7 +18,6 @@ class SmashClientsController < ApplicationController
 
   # GET /smash_clients/new
   def new
-    byebug
     @smash_client = SmashClient.new
   end
 
@@ -29,7 +28,6 @@ class SmashClientsController < ApplicationController
   # POST /smash_clients
   # POST /smash_clients.json
   def create
-    byebug
     @smash_client = SmashClient.create!( smash_client_params )
     @smash_client.user = current_user.user_name
     respond_to do |format|
@@ -76,7 +74,6 @@ class SmashClientsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def smash_client_params
-      byebug
       params.require(:smash_client).permit(:name, :user)
     end
 end
