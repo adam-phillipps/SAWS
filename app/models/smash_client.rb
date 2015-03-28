@@ -4,7 +4,6 @@ class SmashClient < ActiveRecord::Base
 
   def make_instance
     connect
-    byebug
     Contract.new(@ec2, self.name)
 
   end
@@ -13,7 +12,6 @@ class SmashClient < ActiveRecord::Base
   def connect()
     config = YAML.load( File.open( File.expand_path( File.join( Rails.root, 'config/connection_config.yml' ))))[self.user.to_sym]
     creds = Aws::Credentials.new( config[:access_key_id], config[:secret_access_key] )
-    byebug
     @ec2 = Aws::EC2::Client.new( credentials: creds, region: config[:regions].first )
   end  # end connect
 

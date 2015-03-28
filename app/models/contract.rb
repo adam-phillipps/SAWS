@@ -1,7 +1,25 @@
 class Contract < ActiveRecord::Base
   belongs_to :smash_client
   def initialize( ec2, name )
-    byebug
-    puts 'fuck you '
+    @ec2 = ec2
+    @name = name
+    start_instance( {id: 'i-9155569a'} )
+    puts '%%%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%'
+    status = status( {id: 'i-9155569a'} )
+    puts '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+    status
+  end
+
+  def status( params={} )
+    @ec2.describe_instances( instance_ids: [params[:id]] )[:reservations].first.instances.first[:state].name
+  end
+
+  def start_instance( params={} )
+    @ec2.start_instances( instance_ids: [params[:id]] )
+  end
+
+  def stop_instance( params={} )
+    @ec2.stop_instances( instance_ids: [params[:id]] )
   end
 end
+
