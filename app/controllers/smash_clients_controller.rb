@@ -5,6 +5,7 @@ class SmashClientsController < ApplicationController
   # GET /smash_clients.json
   def index
     if user_signed_in?
+      @smash_client
       @smash_clients = SmashClient.where( user: current_user.user_name )
     else
       redirect_to users_path
@@ -28,8 +29,11 @@ class SmashClientsController < ApplicationController
   # POST /smash_clients
   # POST /smash_clients.json
   def create
-    @smash_client = SmashClient.create!( smash_client_params )
-    @smash_client.user = current_user.user_name
+    @smash_client_params = smash_client_params
+    @smash_client_params.update( user: current_user.user_name.to_sym )
+    @smash_client = SmashClient.create!( @smash_client_params )
+    @smash_client.make_instance
+    @smash_client.save!
     respond_to do |format|
       if @smash_client.save
         format.html { redirect_to @smash_client, notice: 'Smash client was successfully created.' }
@@ -39,7 +43,6 @@ class SmashClientsController < ApplicationController
         format.json { render json: @smash_client.errors, status: :unprocessable_entity }
       end
     end
-    @smash_client.make_instance
   end
 
   # PATCH/PUT /smash_clients/1
@@ -74,6 +77,10 @@ class SmashClientsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def smash_client_params
-      params.require(:smash_client).permit(:name, :user)
+      @smash_client_params = params.require(:smash_client).permit(:name, :user)
+    end
+
+    def update( new_key, new_value )
+      @smash_client_params["#{new_key}".to_sym] = new_value
     end
 end
