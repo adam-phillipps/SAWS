@@ -29,8 +29,9 @@ class SmashClientsController < ApplicationController
   # POST /smash_clients
   # POST /smash_clients.json
   def create
-    @smash_client_params = smash_client_params
-    @smash_client_params.update( user: current_user.user_name.to_sym )
+    byebug
+    params[:smash_client][:user] = current_user.user_name
+#    @smash_client_params[:user] = current_user.user_name
     @smash_client = SmashClient.create!( @smash_client_params )
     @smash_client.make_instance
     @smash_client.save!
@@ -77,10 +78,6 @@ class SmashClientsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def smash_client_params
-      @smash_client_params = params.require(:smash_client).permit(:name, :user)
-    end
-
-    def update( new_key, new_value )
-      @smash_client_params["#{new_key}".to_sym] = new_value
+      @smash_client_params = params.require(:smash_client).permit( :user, :name )
     end
 end
