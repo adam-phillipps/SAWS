@@ -29,14 +29,11 @@ class SmashClientsController < ApplicationController
   # POST /smash_clients
   # POST /smash_clients.json
   def create
-    byebug
     params[:smash_client][:user] = current_user.user_name
-#    @smash_client_params[:user] = current_user.user_name
-    @smash_client = SmashClient.create!( @smash_client_params )
-    @smash_client.make_instance
-    @smash_client.save!
+    @smash_client = SmashClient.create!( smash_client_params )
     respond_to do |format|
       if @smash_client.save
+        @smash_client.make_instance
         format.html { redirect_to @smash_client, notice: 'Smash client was successfully created.' }
         format.json { render :show, status: :created, location: @smash_client }
       else
