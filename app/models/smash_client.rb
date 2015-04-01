@@ -5,7 +5,6 @@ class SmashClient < ActiveRecord::Base
   def make_instance
     connect
     Contract.new(@ec2, self.name)
-
   end
 
   # configures Aws and creates an EC2 object -> @ec2

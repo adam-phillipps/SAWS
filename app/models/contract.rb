@@ -4,9 +4,8 @@ class Contract < ActiveRecord::Base
     @ec2 = ec2
     @name = name
     start_instance( {id: 'i-9155569a'} )
-    puts '%%%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%'
     status = status( {id: 'i-9155569a'} )
-    puts '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+    puts "Current instance status: #{status}"
     status
   end
 

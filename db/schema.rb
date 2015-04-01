@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20150313205016) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "contracts", force: :cascade do |t|
     t.string   "name"
     t.string   "instance_id"
@@ -44,8 +47,8 @@ ActiveRecord::Schema.define(version: 20150313205016) do
     t.string   "user_name"
   end
 
-  add_index "users", ["name"], name: "index_users_on_name", unique: true
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
-  add_index "users", ["user_name"], name: "index_users_on_user_name", unique: true
+  add_index "users", ["name"], name: "index_users_on_name", unique: true, using: :btree
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+  add_index "users", ["user_name"], name: "index_users_on_user_name", unique: true, using: :btree
 
 end
