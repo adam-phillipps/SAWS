@@ -3,7 +3,9 @@ class Contract < ActiveRecord::Base
   def initialize( ec2, name )
     @ec2 = ec2
     @name = name
-    start_instance( {id: 'i-9155569a'} )
+    status = start_instance( {id: 'i-9155569a'} )
+    puts status
+    byebug
     status = status( {id: 'i-9155569a'} )
     puts "Current instance status: #{status}"
     status

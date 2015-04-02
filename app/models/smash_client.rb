@@ -1,6 +1,5 @@
 class SmashClient < ActiveRecord::Base
   has_many :contract
-  attr_accessor :name
 
   def make_instance
     connect
