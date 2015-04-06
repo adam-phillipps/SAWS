@@ -14,12 +14,15 @@
 ActiveRecord::Schema.define(version: 20150313205016) do
 
   create_table "contracts", force: :cascade do |t|
-    t.string   "name",         limit: 255
-    t.string   "instance_id",  limit: 255
-    t.string   "smash_client", limit: 255
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.integer  "smash_client_id", limit: 4
+    t.string   "name",            limit: 255
+    t.string   "instance",        limit: 255
+    t.string   "smash_client",    limit: 255
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
+
+  add_index "contracts", ["smash_client_id"], name: "index_contracts_on_smash_client_id", using: :btree
 
   create_table "smash_clients", force: :cascade do |t|
     t.string   "name",       limit: 255

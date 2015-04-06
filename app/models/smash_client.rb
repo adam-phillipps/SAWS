@@ -1,9 +1,11 @@
 class SmashClient < ActiveRecord::Base
-  has_many :contract
+  has_many :contracts
+  attr_accessor :contract
 
   def make_instance
     connect
-    Contract.new(@ec2, self.name)
+    @contract = Contract.new( {smash_client_id: self.id, name: self.name} )
+    @instance =  @contract.make_it( @ec2, self.name ) if @contract.save!
   end
 
   # configures Aws and creates an EC2 object -> @ec2
@@ -13,8 +15,11 @@ class SmashClient < ActiveRecord::Base
     @ec2 = Aws::EC2::Client.new( credentials: creds, region: config[:regions].first )
   end  # end connect
 
-  def kill_it
-    @ec2.kill_instance(instance_id: self.id )
+  def stop_instances( params={} )
+    byebug
+    contract = params[:contract]
+#    contract = Contract.where(smash_client_id: self.id, name: self.name).first
+    contract.stop_instances
   end
 end
 # smash_client makes bids happen, security, memory allocation, instance types etc.

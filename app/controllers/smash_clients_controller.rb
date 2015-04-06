@@ -1,6 +1,7 @@
 class SmashClientsController < ApplicationController
   before_action :set_smash_client, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!
+
   # GET /smash_clients
   # GET /smash_clients.json
   def index
@@ -33,8 +34,10 @@ class SmashClientsController < ApplicationController
     @smash_client = SmashClient.create!( smash_client_params )
     respond_to do |format|
       if @smash_client.save
-        @smash_client.make_instance
-        format.html { redirect_to @smash_client, notice: 'Smash client was successfully created.' }
+        initial_instance = @smash_client.make_instance
+        byebug
+        session[:contract] = @smash_client.contract
+        format.html { redirect_to @smash_client, notice: "Smash client status: #{initial_instance.current_state.name}" }
         format.json { render :show, status: :created, location: @smash_client }
       else
         format.html { render :new }
@@ -60,6 +63,8 @@ class SmashClientsController < ApplicationController
   # DELETE /smash_clients/1
   # DELETE /smash_clients/1.json
   def destroy
+    byebug
+    @smash_client.stop_instances( {contract: session[:contract]} )#@smash_client.contract} )
     @smash_client.destroy
     respond_to do |format|
       format.html { redirect_to smash_clients_url, notice: 'Smash client was successfully destroyed.' }

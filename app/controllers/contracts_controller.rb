@@ -61,6 +61,11 @@ class ContractsController < ApplicationController
     end
   end
 
+  def instance_status
+    byebug
+    status = @contract.status
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_contract
