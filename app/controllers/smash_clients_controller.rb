@@ -35,7 +35,6 @@ class SmashClientsController < ApplicationController
     respond_to do |format|
       if @smash_client.save
         initial_instance = @smash_client.make_instance
-        byebug
         session[:contract] = @smash_client.contract
         format.html { redirect_to @smash_client, notice: "Smash client status: #{initial_instance.current_state.name}" }
         format.json { render :show, status: :created, location: @smash_client }
@@ -63,8 +62,7 @@ class SmashClientsController < ApplicationController
   # DELETE /smash_clients/1
   # DELETE /smash_clients/1.json
   def destroy
-    byebug
-    @smash_client.stop_instances( {contract: session[:contract]} )#@smash_client.contract} )
+    @smash_client.stop_instances( {contract: @smash_client.contracts.first} )
     @smash_client.destroy
     respond_to do |format|
       format.html { redirect_to smash_clients_url, notice: 'Smash client was successfully destroyed.' }

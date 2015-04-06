@@ -3,8 +3,7 @@ class CreateContracts < ActiveRecord::Migration
     create_table :contracts do |t|
       t.belongs_to :smash_client, index: true
       t.string :name
-      t.string :instance
-      t.string :smash_client
+      t.string :instance_id
 
       t.timestamps null: false
     end

@@ -62,7 +62,6 @@ class ContractsController < ApplicationController
   end
 
   def instance_status
-    byebug
     status = @contract.status
   end
 
