@@ -32,16 +32,11 @@ class SmashClientsController < ApplicationController
   def create
     params[:smash_client][:user] = current_user.user_name
     @smash_client = SmashClient.create!( smash_client_params )
-    respond_to do |format|
-      if @smash_client.save
-        initial_instance = @smash_client.make_instance
-        session[:contract] = @smash_client.contract
-        format.html { redirect_to @smash_client, notice: "Smash client status: #{initial_instance.current_state.name}" }
-        format.json { render :show, status: :created, location: @smash_client }
-      else
-        format.html { render :new }
-        format.json { render json: @smash_client.errors, status: :unprocessable_entity }
-      end
+     if @smash_client.save
+      @smash_client.make_instance
+      redirect_to @smash_client, notice: "Smash client created."
+    else
+      format.html { render :new, error: 'Error creating smash client.' }
     end
   end
 
@@ -62,12 +57,13 @@ class SmashClientsController < ApplicationController
   # DELETE /smash_clients/1
   # DELETE /smash_clients/1.json
   def destroy
-    @smash_client.stop_instances( {contract: @smash_client.contracts.first} )
-    @smash_client.destroy
-    respond_to do |format|
-      format.html { redirect_to smash_clients_url, notice: 'Smash client was successfully destroyed.' }
-      format.json { head :no_content }
+    smash_client = SmashClient.find(params[:id])
+    if smash_client.destroy
+      flash[:notice] = "Smash client destroyed successfully!"
+    else
+      flash[:error] = "Error destorying smash client."
     end
+    redirect_to smash_clients_url
   end
 
   private
