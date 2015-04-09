@@ -40,6 +40,17 @@ class SmashClientsController < ApplicationController
     end
   end
 
+  def create_spot
+    params[:smash_client][:user] = current_user.user_name
+    @smash_client = SmashClient.create!( smash_client_params )
+    if @smash_client.save
+      @smash_client.make_spot_instance
+      redirect_to @smash_client, notice: "Smash client created."
+    else
+      format.html { render :new, error: 'Error creating smash client.' }
+    end
+  end
+
   # PATCH/PUT /smash_clients/1
   # PATCH/PUT /smash_clients/1.json
   def update

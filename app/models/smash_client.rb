@@ -2,7 +2,11 @@ class SmashClient < ActiveRecord::Base
   has_many :contracts, dependent: :destroy
 
   def make_instance
-    self.contracts.create!(name: self.name)
+    self.contracts.create!( name: self.name )
+  end
+
+  def make_spot_instance
+    self.contracts.create_spot!( name: self.name )
   end
 
   # configures Aws and creates an EC2 object -> @ec2
