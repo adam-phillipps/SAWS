@@ -35,7 +35,6 @@ class SmashClientsController < ApplicationController
     params[:smash_client][:user] = current_user.user_name
     params[:smash_client][:contracts_attributes] = [params[:contracts]]
     params[:smash_client][:contracts_attributes] << {name: params[:smash_client][:name]}
-    byebug
     @smash_client = SmashClient.create!( smash_client_params )
     if @smash_client.save
       redirect_to @smash_client, notice: "Smash client created."
