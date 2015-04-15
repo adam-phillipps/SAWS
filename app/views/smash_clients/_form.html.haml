@@ -9,5 +9,12 @@
   .field
     = f.label :name
     = f.text_field :name
+
+  .field
+    = fields_for :contracts do |c|
+      = c.label :instance_type, 'spot instance'
+      = c.radio_button :instance_type, 'spot', checked: true
+      = c.label :instance_type, 'on demand instance'
+      = c.radio_button :instance_type, 'on_demand'
   .actions
     = f.submit 'Save'

@@ -1,6 +1,6 @@
 class Contract < ActiveRecord::Base
   belongs_to :smash_client
-  after_create :start_instance
+#  after_create :determine_instance_type_and_start
   before_destroy :stop_instances
   
   def status( params={} )
@@ -9,6 +9,7 @@ class Contract < ActiveRecord::Base
   end # end status
 
   def start_instance
+    byebug
     begin
       ec2 = self.smash_client.aws_client
       instance = ec2.start_instances( instance_ids: ['i-9155569a'] ).starting_instances.first

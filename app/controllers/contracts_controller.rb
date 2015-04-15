@@ -1,6 +1,6 @@
 class ContractsController < ApplicationController
   before_action :set_contract, only: [:show, :edit, :update, :destroy]
-
+  belongs_to :smash_client, dependant_destroy: true
   # GET /contracts
   # GET /contracts.json
   def index
@@ -24,6 +24,7 @@ class ContractsController < ApplicationController
   # POST /contracts
   # POST /contracts.json
   def create
+    byebug
     @contract = Contract.new(contract_params)
 
     respond_to do |format|
@@ -73,6 +74,6 @@ class ContractsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def contract_params
-      params.require(:contract).permit(:name, :instance_id, :smash_client)
+      params.require(:contract).permit(:name, :instance_id, :smash_client, :instance_type)
     end
 end

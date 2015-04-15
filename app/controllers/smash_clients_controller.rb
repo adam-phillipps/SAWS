@@ -16,11 +16,13 @@ class SmashClientsController < ApplicationController
   # GET /smash_clients/1
   # GET /smash_clients/1.json
   def show
+
   end
 
   # GET /smash_clients/new
   def new
     @smash_client = SmashClient.new
+    @smash_client.contracts.build
   end
 
   # GET /smash_clients/1/edit
@@ -85,6 +87,7 @@ class SmashClientsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def smash_client_params
-      @smash_client_params = params.require(:smash_client).permit( :user, :name )
+      @smash_client_params = params.require(:smash_client).
+        permit( :user, :name, contracts_attributes: [:instance_type])
     end
 end

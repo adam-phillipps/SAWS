@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150313205016) do
+ActiveRecord::Schema.define(version: 20150415044644) do
 
   create_table "contracts", force: :cascade do |t|
     t.integer  "smash_client_id", limit: 4
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 20150313205016) do
     t.string   "instance_id",     limit: 255
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
+    t.string   "instance_type",   limit: 255
   end
 
   add_index "contracts", ["smash_client_id"], name: "index_contracts_on_smash_client_id", using: :btree
