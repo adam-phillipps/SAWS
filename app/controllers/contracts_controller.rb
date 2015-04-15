@@ -74,6 +74,6 @@ class ContractsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def contract_params
-      params.require(:contract).permit(:name, :instance_id, :smash_client, :instance_type)
+      params.require(:contract).permit(:name, :instance_id, :smash_client_id, :instance_type)
     end
 end

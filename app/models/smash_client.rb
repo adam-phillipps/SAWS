@@ -1,10 +1,10 @@
 class SmashClient < ActiveRecord::Base
   has_many :contracts, dependent: :destroy
-  accepts_nested_attributes_for :contracts, allow_destroy: true, 
-    reject_if: lambda { |attributes| attributes[:instance_type].blank? }
+  accepts_nested_attributes_for :contracts, allow_destroy: true#, 
+#    reject_if: lambda { |attributes| attributes[:instance_type].blank? }
 
   def make_instance
-    self.contracts.create!( name: self.name )
+#    self.contracts.create!( name: self.name )
   end
 
   def make_spot_instance

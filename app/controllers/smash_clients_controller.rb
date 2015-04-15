@@ -33,9 +33,11 @@ class SmashClientsController < ApplicationController
   # POST /smash_clients.json
   def create
     params[:smash_client][:user] = current_user.user_name
+    params[:smash_client][:contracts_attributes] = [params[:contracts]]
+    params[:smash_client][:contracts_attributes] << {name: params[:smash_client][:name]}
+    byebug
     @smash_client = SmashClient.create!( smash_client_params )
-     if @smash_client.save
-      @smash_client.make_instance
+    if @smash_client.save
       redirect_to @smash_client, notice: "Smash client created."
     else
       format.html { render :new, error: 'Error creating smash client.' }
@@ -88,6 +90,6 @@ class SmashClientsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def smash_client_params
       @smash_client_params = params.require(:smash_client).
-        permit( :user, :name, contracts_attributes: [:instance_type])
+        permit( :user, :name, contracts_attributes: [:id, :name, :smash_client_id, :instance_type])
     end
 end
