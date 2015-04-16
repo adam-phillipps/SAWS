@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150415215031) do
+ActiveRecord::Schema.define(version: 20150416011926) do
 
   create_table "contracts", force: :cascade do |t|
     t.integer  "smash_client_id", limit: 4
