@@ -8,12 +8,17 @@ class Contract < ActiveRecord::Base
     ec2.describe_instances( instance_ids: [params[:id]] )[:reservations].first.instances.first[:state].name
   end # end status
 
+  def determine_instance_type_and_start
+    puts "%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n"
+    puts "%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n"
+    puts "%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n"
+    eval("start_#{self.instance_type}_instance")
+  end
+
   def start_instance
-    byebug
     begin
       ec2 = self.smash_client.aws_client
       instance = ec2.start_instances( instance_ids: ['i-9155569a'] ).starting_instances.first
-      byebug
       instance_id = instance.instance_id
       begin
         self.update(instance_id: instance_id)
@@ -23,7 +28,6 @@ class Contract < ActiveRecord::Base
         "failed updating instance: #{e}"
       end
     rescue => e
-      byebug
       "error starting instance: #{e}"
     end
     instance

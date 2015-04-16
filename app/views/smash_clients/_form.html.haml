@@ -11,7 +11,7 @@
     = f.text_field :name
 
   .field
-    = fields_for :contracts do |c|
+    = f.fields_for :contracts do |c|
       = c.label :instance_type, 'spot instance'
       = c.radio_button :instance_type, 'spot', checked: true
       = c.label :instance_type, 'on demand instance'

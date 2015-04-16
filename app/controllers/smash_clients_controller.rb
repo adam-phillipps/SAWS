@@ -33,21 +33,8 @@ class SmashClientsController < ApplicationController
   # POST /smash_clients.json
   def create
     params[:smash_client][:user] = current_user.user_name
-    params[:smash_client][:contracts_attributes] = [params[:contracts]]
-    params[:smash_client][:contracts_attributes] << {name: params[:smash_client][:name]}
     @smash_client = SmashClient.create!( smash_client_params )
     if @smash_client.save
-      redirect_to @smash_client, notice: "Smash client created."
-    else
-      format.html { render :new, error: 'Error creating smash client.' }
-    end
-  end
-
-  def create_spot
-    params[:smash_client][:user] = current_user.user_name
-    @smash_client = SmashClient.create!( smash_client_params )
-    if @smash_client.save
-      @smash_client.make_spot_instance
       redirect_to @smash_client, notice: "Smash client created."
     else
       format.html { render :new, error: 'Error creating smash client.' }
