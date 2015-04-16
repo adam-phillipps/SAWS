@@ -24,9 +24,8 @@ class ContractsController < ApplicationController
   # POST /contracts
   # POST /contracts.json
   def create
-    byebug
+    params[:contract][:name] = @contract.smash_client.name
     @contract = Contract.new(contract_params)
-
     respond_to do |format|
       if @contract.save
         format.html { redirect_to @contract, notice: 'Contract was successfully created.' }

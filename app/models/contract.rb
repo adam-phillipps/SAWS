@@ -1,65 +1,37 @@
 class Contract < ActiveRecord::Base
   belongs_to :smash_client
-#  after_create :determine_instance_type_and_start
+  after_create :set_name, :determine_instance_type_and_start
   before_destroy :stop_instances
   
-  def status( params={} )
+  def set_name
+    unless self.name
+      self.update(name: self.smash_client.name)
+    end
+  end
+
+  def status( options={} )
     ec2 = self.smash_client.aws_client
-    ec2.describe_instances( instance_ids: [params[:id]] )[:reservations].first.instances.first[:state].name
+    ec2.describe_instances( instance_ids: [options[:id]] )[:reservations].first.instances.first[:state].name
   end # end status
 
   def determine_instance_type_and_start
-    puts "%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n"
-    puts "%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n"
-    puts "%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%\n"
-    eval("start_#{self.instance_type}_instance")
+    if self.instance_type.eql? 'spot'
+      start_spot_instance 
+      else
+      start_on_demand_instance
+    end
   end
 
-  def start_instance
-    begin
-      ec2 = self.smash_client.aws_client
-      instance = ec2.start_instances( instance_ids: ['i-9155569a'] ).starting_instances.first
-      instance_id = instance.instance_id
-      begin
-        self.update(instance_id: instance_id)
-        ec2.wait_until(:instance_running, instance_ids:[instance_id])
-        "instance running"
-      rescue => e
-        "failed updating instance: #{e}"
-      end
-    rescue => e
-      "error starting instance: #{e}"
-    end
-    instance
-  end # end start_instance
-
-  def start_spot_instance
-    ec2 = self.smash_client.aws_client
-    instance = ec2.request_spot_instance(
-      dry_run: true)
-  end
-
-  def stop_instances
-    id = 'i-9155569a'
-    ec2 = self.smash_client.aws_client
-    ec2.stop_instances( instance_ids: [id] ) 
-    begin
-      ec2.wait_until(:instance_stopped, instance_ids:[id])
-      logger.info "instance stopped"
-    rescue Aws::Waiters::Errors::WaiterFailed => error
-      raise "failed waiting for instance running: #{error.message}"
-    end
-  end # end stop_instance
-
-    # gets images and returns a mapping of snapshots to an appropriate ami to the server given
+  # gets images and returns a mapping of snapshots to an appropriate ami to the server given
   # as the parameter
   def get_ami( options={} )
-    image_name = options[:name].nil? ? self.name+"*" : options[:name]+"*"
-    self.smash_client.aws_client.
+    options[:name] = 'Adam'
+    image_name = (self.name || options[:name])+'*'
+    @image = self.smash_client.aws_client.
       describe_images( owners: ['self'],filters: [ {name: 'name', values: [image_name]} ] ).images.last # returns an Aws::EC2::Image
   end # end get_ami
 
-    def spot_shopper( image )
+  def best_choice_for( image )
     spot_prices = []
     ec2 = self.smash_client.aws_client
     tags = image.tags
@@ -75,13 +47,76 @@ class Contract < ActiveRecord::Base
     best_match[:spot_price] = ( best_match[:spot_price].to_f + 
       ( best_match[:spot_price].to_f*0.2 ) ).round(3).to_s
     best_match
-  end # end spot_shopper
+  end # best_choice
+
+  def start_on_demand_instance
+    ec2 = self.smash_client.aws_client
+    start_instance_with_id( (self.instance_id || get_instance_id) )
+  end # end_start_on_demand_instance
+
+  # TODO find a better way 'cause it has to exist
+  # finds the instance id using the name the user gives
+  def get_instance_id
+    @instance_id ||= self.smash_client.aws_client.describe_instances(
+      filters: [name: 'tag:Name', values: [self.name]]).
+        first.reservations.first.instances.first.instance_id # gets an instance id
+  end # end get_instance_id
+
+
+  # uses an instance id to start an on_demand instance
+  def start_instance_with_id( id )
+    begin
+      instance = self.smash_client.aws_client.start_instances( instance_ids: [id] ).starting_instances.first
+      instance_id = instance.instance_id
+      begin
+        self.update(instance_id: instance_id)
+        ec2.wait_until(:instance_running, instance_ids:[instance_id])
+        "instance running"
+      rescue => e
+        "failed updating instance: #{e}"
+      end
+    rescue => e
+      "error starting instance: #{e}"
+    end
+    instance
+  end # end start_instance
+
+  def start_spot_instance( options={} )
+    image = get_ami
+    suggested_offer = best_choice_for( image )
+    # this is what is in suggested_offer
+    # best_match = {:spot_price=>"1.08", :availability_zone=>"us-west-2a"}
+    instance = self.smash_client.aws_client.
+      request_spot_instances( suggested_offer )
+#    instance = ec2.request_spot_instances( best_choice_for( get_ami( self.name ) ) )
+    begin
+      ec2.wait_until( :instance_running, instance_ids[@instance.instance_id] )
+      self.update( instance_id: instance.instance_id )
+      'insance running'
+    rescue => e
+      "failed updating instance: #{e}"
+    end
+    instance
+  end
+
+  def stop_instances
+    id = (self.instance_id || get_instance_id)
+    ec2 = self.smash_client.aws_client
+    ec2.stop_instances( instance_ids: [id] ) 
+    begin
+      ec2.wait_until(:instance_stopped, instance_ids:[id])
+      logger.info "instance stopped"
+    rescue Aws::Waiters::Errors::WaiterFailed => error
+      raise "failed waiting for instance running: #{error.message}"
+    end
+  end # end stop_instance
 
   def all_regions
-    self.smash_client.aws_client.describe_regions.regions.map(&:region_name)
+    @regions ||= self.smash_client.aws_client.describe_regions.regions.map(&:region_name)
   end # end all_regions
 
   def all_zones
-    self.smash_client.aws_client.describe_availability_zones.availability_zones.map(&:zone_name)
+    @zones ||= self.smash_client.aws_client.describe_availability_zones.
+      availability_zones.map(&:zone_name)
   end # end all_zones
 end # end Contract
