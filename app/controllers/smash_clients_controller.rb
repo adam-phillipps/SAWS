@@ -29,6 +29,10 @@ class SmashClientsController < ApplicationController
   def edit
   end
 
+  def add_contract
+    @smash_client.contracts.build
+  end
+
   # POST /smash_clients
   # POST /smash_clients.json
   def create

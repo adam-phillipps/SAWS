@@ -1,0 +1,10 @@
+%h2 = 'Add a new instance or EBS volume'
+
+= form_for @smash_client do |f|
+  = f.fields_for :contracts do |contract|
+    = c.label :name, 'name'
+    = c.text_field :name
+    = c.label :instance_type, 'spot instance'
+    = c.radio_button :instance_type, 'spot', checked: true
+    = c.label :instance_type, 'on demand instance'
+    = c.radio_button :instance_type, 'on_demand'
