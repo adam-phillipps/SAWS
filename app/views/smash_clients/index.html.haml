@@ -1,25 +1,26 @@
-%h1 
-  = current_user.user_name
-  \'s Clients
-%table
-  %thead
-    %tr
-      %th Name
-      %th User
-      %th Status
-      %th
-      %th
-
-  %tbody
-    - @smash_clients.each do |smash_client|
+.ok
+  %h1 
+    = current_user.user_name
+    \'s Clients
+  %table
+    %thead
       %tr
-        %td= smash_client.name
-        %td= smash_client.user
-        %td= smash_client.contracts.first.status( {id: 'i-9155569a'} )
-        %td= link_to 'Show', smash_client
-        %td= link_to 'Edit', edit_smash_client_path(smash_client)
-        %td= link_to 'Destroy', smash_client, :method => :delete, :data => { :confirm => 'Are you sure?' }
+        %th Name
+        %th User
+        %th Status
+        %th
+        %th
 
-%br
+    %tbody
+      - @smash_clients.each do |smash_client|
+        %tr
+          %td= smash_client.name
+          %td= smash_client.user
+          %td= smash_client.contracts.first.status( {id: 'i-9155569a'} )
+          %td= link_to 'Show', smash_client
+          %td= link_to 'Edit', edit_smash_client_path(smash_client)
+          %td= link_to 'Destroy', smash_client, :method => :delete, :data => { :confirm => 'Are you sure?' }
 
-= link_to 'New Smash client', new_smash_client_path
+  %br
+
+  = link_to 'New Smash client', new_smash_client_path
