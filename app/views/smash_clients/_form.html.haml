@@ -13,8 +13,8 @@
   .field
     = f.fields_for :contracts do |c|
       = c.label :instance_type, 'spot instance'
-      = c.radio_button :instance_type, 'spot', checked: true
+      = c.radio_button :instance_type, 'Spot', checked: true
       = c.label :instance_type, 'on demand instance'
-      = c.radio_button :instance_type, 'on_demand'
+      = c.radio_button :instance_type, 'OnDemand'
   .actions
     = f.submit 'Save'

@@ -4,7 +4,7 @@ class CreateContracts < ActiveRecord::Migration
       t.belongs_to :smash_client, index: true
       t.string :name
       t.string :instance_id
-
+      
       t.timestamps null: false
     end
   end
