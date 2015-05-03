@@ -43,12 +43,11 @@ ActiveRecord::Schema.define(version: 20150425140540) do
     t.string   "current_sign_in_ip",     limit: 255
     t.string   "last_sign_in_ip",        limit: 255
     t.string   "password",               limit: 255
-    t.string   "email",                  limit: 255
+    t.string   "username",               limit: 255
     t.string   "user_name",              limit: 255
   end
 
   add_index "users", ["name"], name: "index_users_on_name", unique: true, using: :btree
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["user_name"], name: "index_users_on_user_name", unique: true, using: :btree
 
 end

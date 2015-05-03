@@ -11,7 +11,7 @@
 development:
   adapter: mysql2
   encoding: utf8
-  database: saw_development
+  database: saw_dev
   pool: 5
   username: root
   password:

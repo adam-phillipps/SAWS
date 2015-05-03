@@ -18,13 +18,13 @@ class User < ActiveRecord::Base
   end
 
   def login
-    @login || self.user_name || self.email
+    @login || self.user_name
   end
 
   def self.find_first_by_auth_conditions(warden_conditions)
     conditions = warden_conditions.dup
     if login = conditions.delete(:login)
-      where(conditions).where(["lower(user_name) = :value OR lower(email) = :value", { :value => login.downcase }]).first
+      where(conditions).where(["lower(user_name) = :value", { :value => login.downcase }]).first
     else
       if conditions[:user_name].nil?
         where(conditions).first
