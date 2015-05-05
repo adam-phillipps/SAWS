@@ -6,11 +6,14 @@ class Spot < Contract
     ec2 = self.smash_client.aws_client
     best_choice_params = best_choice_for(get_ami)
     instance = 'nothing yet'
-    byebug
     if instance_already_exists_in(best_choice_params[:availability_zone])
       instance = ec2.request_spot_instance(spot_instance_params)
     else
       byebug
+      image = get_ami
+      config = YAML.load(File.expand_path(__FILE__, '../config/connection_config.yml')
+      aws_creds = Aws::Credentials.new(config['AccessKeyId'], config['SecretAccessKey'])
+      Aws::EC2::Client.new(credentials: aws_creds).create_instance(image)
     end
     byebug
     begin
@@ -23,13 +26,15 @@ class Spot < Contract
     instance
   end
 
+  # checks if the instance already exists in the given zone and returns boolean
   def instance_already_exists_in(zone)
     self.smash_client.aws_client.describe_instances(filters: [
       {name: 'tag:Name', values: [self.name]},
       {name: 'tag:availability_zone', values: [zone]}]).reservations.count > 0
   end # end instance_already_exists_in?
 
-  # asks Aws what the best price is for this type of instance, then returns info about the price and zone that had the best value
+  # asks Aws what the best price is for this type of instance, then returns info 
+  # about the price and zone that had the best value
   def best_choice_for(image)
     spot_prices = []
     ec2 = self.smash_client.aws_client
