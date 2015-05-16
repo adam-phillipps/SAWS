@@ -11,7 +11,7 @@
 development:
   adapter: mysql2
   encoding: utf8
-  database: saw_dev
+  database: saws_dev
   pool: 5
   username: root
   password:
@@ -24,7 +24,7 @@ test:
   adapter: mysql2
   encoding: utf8
   reconnect: false
-  database: saw_test
+  database: saws_test
   pool: 5
   username: root
   password: 
@@ -34,6 +34,6 @@ production:
   adapter: mysql2
   encoding: utf8
   reconnect: false
-  database: saw_production
+  database: saws_production
   pool: 5
   host: localhost

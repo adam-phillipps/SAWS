@@ -1,26 +1,30 @@
-.ok
-  %h1 
-    = current_user.user_name
-    \'s Clients
-  %table
-    %thead
-      %tr
-        %th Name
-        %th User
-        %th Status
-        %th
-        %th
+.standard-container
+  %h2
+    = "#{current_user.user_name}'s Clients".titleize
+  .clients-table
+    - if @smash_clients.count > 0
+      %table.table.table-striped
+        %thead
+          %tr
+            %th Name
+            %th User
+            %th Status
+            %th Show
+            %th Edit
+            %th Stop
+            %th Terminate
+        %tbody
+          - @smash_clients.each do |sc|
+            %tr
+              %td= sc.name
+              %td= sc.user
+              %td= sc.contracts.first.status( {id: 'i-9155569a'} )
+              %td= button_to 'Show', sc
+              %td= button_to 'Edit', edit_smash_client_path(sc)
+              %td= button_to 'Stop', sc, method: :delete, data: {confirm: 'Are you sure you want to stop the instance?'}, params: {kill_type: 'stop'}
+              %td= button_to 'Terminate', sc, method: :delete, data: {disable_with: raw("<i class='fa fa-spinner fa-spin'></i> Terminating..."), confirm: 'Are you sure you want to terminate the instance?  You\'ll loose all your data too.'}, params: {kill_type: 'terminate'}
+              / %td= button_to 'Destroy', sc, :method => :delete, :data => { :confirm => 'Are you sure?' }
 
-    %tbody
-      - @smash_clients.each do |smash_client|
-        %tr
-          %td= smash_client.name
-          %td= smash_client.user
-          %td= smash_client.contracts.first.status( {id: 'i-9155569a'} )
-          %td= link_to 'Show', smash_client
-          %td= link_to 'Edit', edit_smash_client_path(smash_client)
-          %td= link_to 'Destroy', smash_client, :method => :delete, :data => { :confirm => 'Are you sure?' }
-
-  %br
+      %br
 
   = link_to 'New Smash client', new_smash_client_path

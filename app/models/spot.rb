@@ -2,20 +2,17 @@ class Spot < Contract
   after_create :start_spot_instance
 
   def start_spot_instance
-    byebug
-    ec2 = self.smash_client.aws_client
+    ec2 = self.smash_client.ec2_client
     best_choice_params = best_choice_for(get_ami)
     instance = 'nothing yet'
     if instance_already_exists_in(best_choice_params[:availability_zone])
       instance = ec2.request_spot_instance(spot_instance_params)
     else
-      byebug
       image = get_ami
-      config = YAML.load(File.expand_path(__FILE__, '../config/connection_config.yml')
+      config = YAML.load(File.expand_path(__FILE__, '../config/connection_config.yml'))
       aws_creds = Aws::Credentials.new(config['AccessKeyId'], config['SecretAccessKey'])
       Aws::EC2::Client.new(credentials: aws_creds).create_instance(image)
     end
-    byebug
     begin
       ec2.wait_until(:instance_running, instance_ids[@instance.instance_id])
       self.update(instance_id: instance.instance_id)
@@ -28,7 +25,7 @@ class Spot < Contract
 
   # checks if the instance already exists in the given zone and returns boolean
   def instance_already_exists_in(zone)
-    self.smash_client.aws_client.describe_instances(filters: [
+    self.smash_client.ec2_client.describe_instances(filters: [
       {name: 'tag:Name', values: [self.name]},
       {name: 'tag:availability_zone', values: [zone]}]).reservations.count > 0
   end # end instance_already_exists_in?
@@ -37,7 +34,7 @@ class Spot < Contract
   # about the price and zone that had the best value
   def best_choice_for(image)
     spot_prices = []
-    ec2 = self.smash_client.aws_client
+    ec2 = self.smash_client.ec2_client
     tags = image.tags
     all_zones.each do |az|
       spot_prices << ec2.describe_spot_price_history(
@@ -57,7 +54,6 @@ class Spot < Contract
 
   # creates a hash that can be used to start a spot instance and map it to its ebs/other instances/etc
   def spot_instance_params(options={})
-    byebug
     best_choice_params = best_choice_for(get_ami(options[:name]))
     {spot_price: best_choice_params[:spot_price],
       instance_count: 1, 

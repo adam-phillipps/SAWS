@@ -62,11 +62,38 @@ class SmashClientsController < ApplicationController
   # DELETE /smash_clients/1
   # DELETE /smash_clients/1.json
   def destroy
-    smash_client = SmashClient.find(params[:id])
-    if smash_client.destroy
-      flash[:notice] = "Smash client destroyed successfully!"
+    # assumes killing a parent instance will kill all related instances
+    if params[:kill_type].eql? 'stop'
+      stop
     else
-      flash[:error] = "Error destorying smash client."
+      terminate
+    end
+  end
+
+  def stop
+    # assumes killing a parent instance will kill all related instances
+    smash_client = SmashClient.find(params[:id])
+    contract = smash_client.contracts.first
+    if contract.stop_instances
+      if smash_client.destroy
+        flash[:notice] = "Your instance stopped successfully!"
+      else
+        flash[:error] = "Error stopping your instance"
+      end
+    end
+    redirect_to smash_clients_url
+  end
+
+  def terminate
+    # assumes killing a parent instance will kill all related instances
+    smash_client = SmashClient.find(params[:id])
+    contract = smash_client.contracts.first
+    if contract.terminate_instances
+      if smash_client.destroy
+        flash[:notice] = "Your instance terminated successfully!"
+      else
+        flash[:error] = "Error terminated your instance"
+      end
     end
     redirect_to smash_clients_url
   end

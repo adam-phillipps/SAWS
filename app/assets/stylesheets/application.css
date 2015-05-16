@@ -12,4 +12,73 @@
  *
  *= require_tree .
  *= require_self
+ *= require bootstrap
  */
+
+@import "bootstrap-sprockets"
+@import "bootstrap"
+
+
+* {
+  -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+      box-sizing: border-box;
+}
+
+body { 
+  background: url('data-science1.jpg') no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.main-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(800,800,800);
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  top: 40px;
+  opacity: .8;
+  min-height: 400px;
+  text-align: center;
+  width: 80%;
+  margin: 0 auto;
+  border-radius: 15px 50px 30px
+}
+
+.main-background {
+  position: relative;
+  display: inline-block;
+  color: #777;
+  background-color: black;
+  width: 50%;
+  min-width: 300px;
+  height: auto;
+  margin: 0 auto;
+  padding: 15px;
+  padding-bottom: 50px;
+  border-radius: 15px 50px 30px;
+  opacity: .8;
+}
+
+.standard-container {
+  text-align: center;
+}
+
+#saws-header {
+  color: black;
+  padding: 5px 0 10px;
+  white-space: nowrap;
+  width: 80%;
+}
+
+.clients-table {
+  border-style: solid;
+  border-radius: 5px 10px 20px 30px;
+  border-color: white;
+}

@@ -1,12 +1,16 @@
 !!!
 %html
   %head
-    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
-    %title Saws
+    %meta{content: "text/html; charset=UTF-8", "http-equiv": "Content-Type"}/
+    %title Cloud God
     = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
     = javascript_include_tag 'application', 'data-turbolinks-track' => true
     = csrf_meta_tags
   %body
     - if user_signed_in?
-      = link_to 'logout', destroy_user_session_path, method: :delete
-    = yield
+      #saws-header
+        = link_to 'Logout', destroy_user_session_path, method: :delete
+    .main-container
+      .main-background
+        = yield
+

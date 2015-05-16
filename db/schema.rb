@@ -11,15 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150425140540) do
+ActiveRecord::Schema.define(version: 20150516155414) do
 
   create_table "contracts", force: :cascade do |t|
     t.integer  "smash_client_id", limit: 4
     t.string   "name",            limit: 255
     t.string   "instance_id",     limit: 255
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                                       null: false
+    t.datetime "updated_at",                                       null: false
     t.string   "instance_type",   limit: 255
+    t.string   "instance_state",  limit: 255, default: "inactive"
   end
 
   add_index "contracts", ["smash_client_id"], name: "index_contracts_on_smash_client_id", using: :btree
@@ -34,6 +35,7 @@ ActiveRecord::Schema.define(version: 20150425140540) do
   create_table "users", force: :cascade do |t|
     t.string   "name",                   limit: 255
     t.string   "encrypted_password",     limit: 255, default: "", null: false
+    t.string   "email",                  limit: 255,              null: false
     t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"

@@ -1,20 +1,21 @@
-= form_for @smash_client do |f|
-  - if @smash_client.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@smash_client.errors.count, "error")} prohibited this smash_client from being saved:"
-      %ul
-        - @smash_client.errors.full_messages.each do |msg|
-          %li= msg
+.standard-container
+  = form_for @smash_client do |f|
+    - if @smash_client.errors.any?
+      #error_explanation
+        %h2= "#{pluralize(@smash_client.errors.count, "error")} prohibited this smash_client from being saved:"
+        %ul
+          - @smash_client.errors.full_messages.each do |msg|
+            %li= msg
 
-  .field
-    = f.label :name
-    = f.text_field :name
+    .field
+      = f.label :name
+      = f.text_field :name
 
-  .field
-    = f.fields_for :contracts do |c|
-      = c.label :instance_type, 'spot instance'
-      = c.radio_button :instance_type, 'Spot', checked: true
-      = c.label :instance_type, 'on demand instance'
-      = c.radio_button :instance_type, 'OnDemand'
-  .actions
-    = f.submit 'Save'
+    .field
+      = f.fields_for :contracts do |c|
+        = c.label :instance_type, 'spot instance'
+        = c.radio_button :instance_type, 'Spot', checked: true
+        = c.label :instance_type, 'on demand instance'
+        = c.radio_button :instance_type, 'OnDemand'
+    .actions
+      = f.button 'Create', data: {disable_with: "<i class='fa fa-spinner fa-spin'</i>Creating..."}

@@ -26,17 +26,20 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-# Use Unicorn as the app server
-# gem 'unicorn'
-
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
 # CUSTOM GEMS
 # -----------
+# Authentication
 gem 'devise'
+# Interaction with Aws
 gem 'aws-sdk', '~> 2'
+# Using mysql2 because it's lighter than psql but more robust than sqlite3
 gem 'mysql2'
+# find out why this is pinned to 3.2.0
+gem 'bootstrap-sass', '~> 3.2.0'
+gem 'autoprefixer-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
