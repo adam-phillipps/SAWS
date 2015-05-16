@@ -21,7 +21,7 @@
               %td= sc.contracts.first.status( {id: 'i-9155569a'} )
               %td= button_to 'Show', sc
               %td= button_to 'Edit', edit_smash_client_path(sc)
-              %td= button_to 'Stop', sc, method: :delete, data: {confirm: 'Are you sure you want to stop the instance?'}, params: {kill_type: 'stop'}
+              %td= button_to 'Stop', sc, method: :delete, data: {disable_with: raw("<i class='fa fa-spinner fa-spin'></i> Stopping..."), confirm: 'Are you sure you want to stop the instance?'}, params: {kill_type: 'stop'}
               %td= button_to 'Terminate', sc, method: :delete, data: {disable_with: raw("<i class='fa fa-spinner fa-spin'></i> Terminating..."), confirm: 'Are you sure you want to terminate the instance?  You\'ll loose all your data too.'}, params: {kill_type: 'terminate'}
               / %td= button_to 'Destroy', sc, :method => :delete, :data => { :confirm => 'Are you sure?' }
 
