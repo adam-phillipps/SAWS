@@ -51,10 +51,8 @@ class SmashClientsController < ApplicationController
     respond_to do |format|
       if @smash_client.update(smash_client_params)
         format.html { redirect_to @smash_client, notice: 'Smash client was successfully updated.' }
-        format.json { render :show, status: :ok, location: @smash_client }
       else
         format.html { render :edit }
-        format.json { render json: @smash_client.errors, status: :unprocessable_entity }
       end
     end
   end
