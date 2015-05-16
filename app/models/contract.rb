@@ -20,7 +20,7 @@ class Contract < ActiveRecord::Base
 
   def status(options={})
     begin
-      self.smash_client.ec2_client.describe_instances(instance_ids: [options[:id]])[:reservations].
+      self.smash_client.ec2_client.describe_instances(instance_ids: [self.instance_id])[:reservations].
         first.instances.first[:state].name
     rescue => e
         "gone"
