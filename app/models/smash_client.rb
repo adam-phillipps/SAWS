@@ -1,9 +1,17 @@
 class SmashClient < ActiveRecord::Base
-#  include AwsRobot
+  include Workflow
 
   has_many :contracts, dependent: :destroy
   accepts_nested_attributes_for :contracts, allow_destroy: true#, 
 #    reject_if: lambda { |attributes| attributes[:instance_type].blank? }
+
+  workflow do
+    state :created do
+      event :new, transition_to: :destroyed
+    end
+
+    state :destroyed
+  end
 
   # configures Aws and creates an EC2 object -> @ec2
   def ec2_client
