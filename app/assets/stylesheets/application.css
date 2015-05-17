@@ -81,4 +81,5 @@ body {
   border-style: solid;
   border-radius: 5px 10px 20px 30px;
   border-color: white;
+  overflow: auto;
 }
