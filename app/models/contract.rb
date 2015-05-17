@@ -1,8 +1,28 @@
 class Contract < ActiveRecord::Base
+  include Workflow
+
   belongs_to :smash_client
   after_create :set_name
-  before_destroy :stop_instances, unless: :cannot_be_stopped?
+  before_destroy :stop, unless: :cannot_be_stopped?
   self.inheritance_column = :instance_type # this line is not needed when using :type but is for other column names
+
+  workflow do
+    state :new do
+      event :new, transition_to: :starting
+    end
+
+    state :starting do
+      event :start, transition_to: :running
+    end
+
+    state :running do
+      event :stop, transition_to: :stopped
+      event :terminate_instances, transition_to: :terminated
+    end
+
+    state :stopped
+    state :terminated  
+  end
 
   # We will need a way to know which types
   # will subclass the contract model
@@ -27,9 +47,9 @@ class Contract < ActiveRecord::Base
     end
   end # end status
 
-  def determine_instance_type_and_start
+  def start
     self.instance_type.eql? 'Spot' ? self.start_spot_instance : self.start_on_demand_instance
-  end # end determine_instance_type_and_start
+  end # end start
 
   # TODO find a better way 'cause it has to exist
   # finds the instance id using the name the user gives
@@ -71,13 +91,13 @@ class Contract < ActiveRecord::Base
     ec2 = self.smash_client.ec2_client.describe_instances()
   end # end get_related_instances
 
-  def stop_instances
+  def stop
     id = self.instance_id
     if id.nil?
       return 'instance is already stopped or does not exist'
     else
       ec2 = self.smash_client.ec2_client
-      ec2.stop_instances(instance_ids: [id]) 
+      ec2.stop(instance_ids: [id]) 
       begin
         ec2.wait_until(:instance_stopped, instance_ids:[id])
         self.update(instance_state: 'stopped')
@@ -87,7 +107,7 @@ class Contract < ActiveRecord::Base
         raise "There was a problem stopping the instance: #{e}"
       end
     end
-  end # end stop_instance
+  end # end stop
 
   def terminate_instances
     id = self.instance_id
@@ -105,6 +125,6 @@ class Contract < ActiveRecord::Base
         raise "failed waiting for instance: #{error.message}"
       end
     end
-  end # end stop_instance
+  end # end terminate
 
 end # end Contract

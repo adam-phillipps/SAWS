@@ -72,7 +72,7 @@ class SmashClientsController < ApplicationController
     # assumes killing a parent instance will kill all related instances
     smash_client = SmashClient.find(params[:id])
     contract = smash_client.contracts.first
-    if contract.stop_instances
+    if contract.stop
       if smash_client.destroy
         flash[:notice] = "Your instance stopped successfully!"
       else

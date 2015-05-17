@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  include Workflow
+
   has_many :smash_clients
   attr_accessor :login
   # adds case insensitivity to validations on user_name
@@ -11,6 +13,25 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
+
+  workflow do
+    state :new do
+      event :send_email, transition_to: :waiting_for_response
+    end
+
+    state :wating_for_response do
+      event :accept, transition_to: :accepted
+      event :reject, transition_to: :rejected
+    end
+
+    state :accepted do
+      event :login, transition_to: :active
+    end
+
+    state :active
+    state :rejected
+    state :deleted
+  end
 
   # creates read/write for login var.  not sure why we need this since it's in attr_accessor.  research later
   def login=(login)
