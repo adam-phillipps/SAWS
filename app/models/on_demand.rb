@@ -1,5 +1,4 @@
 class OnDemand < Contract
-#  include AwsRobot
   after_create :set_instance_id, :start_on_demand_instance
 
   def start_on_demand_instance

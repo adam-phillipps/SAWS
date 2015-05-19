@@ -6,10 +6,14 @@ class SmashClient < ActiveRecord::Base
 #    reject_if: lambda { |attributes| attributes[:instance_type].blank? }
 
   workflow do
-    state :created do
-      event :new, transition_to: :destroyed
+    state :new do
+      event :save, transition_to: :created
     end
 
+    state :created do
+      event :destroy, transition_to: :destroyed
+    end
+    
     state :destroyed
   end
 

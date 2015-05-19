@@ -8,20 +8,19 @@ class Contract < ActiveRecord::Base
 
   workflow do
     state :new do
-      event :new, transition_to: :starting
+      event :save, transition_to: :created
     end
 
-    state :starting do
+    state :created do
       event :start, transition_to: :running
     end
 
     state :running do
-      event :stop, transition_to: :stopped
-      event :terminate_instances, transition_to: :terminated
+      event :stop, transition_to: :deleted
+      event :terminate_instances, transition_to: :deleted
     end
 
-    state :stopped
-    state :terminated  
+    state :deleted
   end
 
   # We will need a way to know which types
@@ -97,7 +96,7 @@ class Contract < ActiveRecord::Base
       return 'instance is already stopped or does not exist'
     else
       ec2 = self.smash_client.ec2_client
-      ec2.stop(instance_ids: [id]) 
+      ec2.stop_instances(instance_ids: [id]) 
       begin
         ec2.wait_until(:instance_stopped, instance_ids:[id])
         self.update(instance_state: 'stopped')
