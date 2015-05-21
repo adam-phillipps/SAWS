@@ -1,7 +1,7 @@
 class Spot < Contract
-  after_create :start_spot_instance
+  after_create :start
 
-  def start_spot_instance
+  def start
     ec2 = self.smash_client.ec2_client
     best_choice_params = best_choice_for(get_ami)
     instance = 'nothing yet'
@@ -30,7 +30,7 @@ class Spot < Contract
       {name: 'tag:availability_zone', values: [zone]}]).reservations.count > 0
   end # end instance_already_exists_in?
 
-  # asks Aws what the best price is for this type of instance, then returns info 
+  # asks Aws what the best price is for this type of instance, then returns info
   # about the price and zone that had the best value
   def best_choice_for(image)
     spot_prices = []
@@ -47,7 +47,7 @@ class Spot < Contract
       map{|sph| {spot_price: sph.spot_price, availability_zone: sph.availability_zone, instance_type: sph.instance_type}}.
         min_by {|sp| sp[:price]}
 
-    best_match[:spot_price] = (best_match[:spot_price].to_f + 
+    best_match[:spot_price] = (best_match[:spot_price].to_f +
       (best_match[:spot_price].to_f*0.2)).round(3).to_s # TODO: add a method that does this 20% increase, etc.
     best_match
   end # best_choice_for
@@ -56,7 +56,7 @@ class Spot < Contract
   def spot_instance_params(options={})
     best_choice_params = best_choice_for(get_ami(options[:name]))
     {spot_price: best_choice_params[:spot_price],
-      instance_count: 1, 
+      instance_count: 1,
       launch_specification: {
         image_id: get_ami.image_id,
         instance_type: get_ami.tags.select{|tag| tag.key.eql? "instance_types"}.first.value,

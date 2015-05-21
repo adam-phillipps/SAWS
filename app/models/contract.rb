@@ -2,9 +2,11 @@ class Contract < ActiveRecord::Base
   include Workflow
 
   belongs_to :smash_client
-  after_create :set_name
+  before_create :set_name
   before_destroy :stop, unless: :cannot_be_stopped?
   self.inheritance_column = :instance_type # this line is not needed when using :type but is for other column names
+
+  delegate :ec2_client, to: :smash_client # this will eliminate the need to keep calling self.smash_client.ec2client now I can just call ec2client
 
   workflow do
     state :new do
@@ -23,23 +25,17 @@ class Contract < ActiveRecord::Base
     state :deleted
   end
 
-  # We will need a way to know which types
-  # will subclass the contract model
-  def self.instance_type
-    %w(spot on_demand)
-  end
-
   def cannot_be_stopped?
     ['stopped', 'stopping', 'terminated', 'shutting-down', 'inactive'].include? self.instance_state
   end
-  
+
   def set_name
-    self.update(name: self.smash_client.name) unless self.name
-  end # end set_name
+    self.name ||= self.smash_client.name
+  end
 
   def status(options={})
     begin
-      self.smash_client.ec2_client.describe_instances(instance_ids: [self.instance_id])[:reservations].
+      ec2_client.describe_instances(instance_ids: [self.instance_id])[:reservations].
         first.instances.first[:state].name
     rescue => e
         "gone"
@@ -57,7 +53,7 @@ class Contract < ActiveRecord::Base
     # figure out why the instance-stat-name filter returns different amounts of instances than the UI
     # so far it seems like the owner determines it so it should be a good thing
     begin
-      @instance_id ||= self.smash_client.ec2_client.describe_instances(
+      @instance_id ||= ec2_client.describe_instances(
         filters: [
           {name: 'tag:Name', values: [self.name]},
           {name: 'instance-state-name', values: ['stopping', 'stopped']}]).
@@ -75,55 +71,45 @@ class Contract < ActiveRecord::Base
   # returns an Aws::EC2::Image
   def get_ami(options={})
     image_name = self.name+'*'
-    @image ||= self.smash_client.ec2_client.
-      describe_images(owners: ['self'],filters: [name: 'tag:Name', values: [image_name]]).images.last 
+    @image ||= ec2_client.
+      describe_images(owners: ['self'],filters: [name: 'tag:Name', values: [image_name]]).images.last
   end # end get_ami
 
   # gets AMI block_device_mappings for an image
   def get_block_device_mappings
-    self.smash_client.ec2_client.describe_images(image_ids: [get_ami.image_id]).
+    ec2_client.describe_images(image_ids: [get_ami.image_id]).
       first.images.first.block_device_mappings
   end # end get_block_device_mappings
 
   # not sure if we need this yet
   def get_related_instances
-    ec2 = self.smash_client.ec2_client.describe_instances()
+    ec2_client.describe_instances()
   end # end get_related_instances
 
   def stop
-    id = self.instance_id
-    if id.nil?
-      return 'instance is already stopped or does not exist'
-    else
-      ec2 = self.smash_client.ec2_client
-      ec2.stop_instances(instance_ids: [id]) 
-      begin
-        ec2.wait_until(:instance_stopped, instance_ids:[id])
-        self.update(instance_state: 'stopped')
-        logger.info "instance stopped"
-        true
-      rescue => e
-        raise "There was a problem stopping the instance: #{e}"
-      end
+    return 'instance is already stopped or does not exist' if instance_id.nil?
+    ec2_client.stop_instances(instance_ids: [id])
+    begin
+      ec2_client.wait_until(:instance_stopped, instance_ids:[id])
+      self.update(instance_state: 'stopped')
+      logger.info "instance stopped"
+      true
+    rescue => e
+      raise "There was a problem stopping the instance: #{e}"
     end
-  end # end stop
+  end
 
   def terminate_instances
-    id = self.instance_id
-    if id.nil?
-      return 'instance is already terminated or does not exist'
-    else
-      ec2 = self.smash_client.ec2_client
-      ec2.terminate_instances(instance_ids: [id])
-      self.update(instance_state: 'terminated') 
-      begin
-        ec2.wait_until(:instance_terminated, instance_ids:[id])
-        logger.info "instance stopped"
-        true
-      rescue => e
-        raise "failed waiting for instance: #{error.message}"
-      end
+    return 'instance is already terminated or does not exist' if instance_id.nil?
+    ec2_client.terminate_instances(instance_ids: [id])
+    self.update(instance_state: 'terminated')
+    begin
+      ec2_client.wait_until(:instance_terminated, instance_ids:[id])
+      logger.info "instance stopped"
+      true
+    rescue => e
+      raise "failed waiting for instance: #{error.message}"
     end
-  end # end terminate
+  end
 
-end # end Contract
+end
