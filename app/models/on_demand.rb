@@ -1,7 +1,7 @@
 class OnDemand < Contract
-  after_create :set_instance_id, :start_on_demand_instance
+  after_create :set_instance_id, :start
 
-  def start_on_demand_instance
+  def start
     if instance_id.nil?
       start_on_demand_instance_from_ami(get_ami(name: self.smash_client.name, zone: self.smash_client.home_zone))
     else
