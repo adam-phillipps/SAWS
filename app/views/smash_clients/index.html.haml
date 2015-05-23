@@ -19,12 +19,13 @@
               %td= sc.name
               %td= sc.user
               %td= sc.contracts.first.status
-              %td= button_to 'Show', smash_client_path(sc), method: :get, data: { disable_with: "..." }
-              %td= button_to 'Edit', edit_smash_client_path(sc), method: :get, data: { disable_with: "..." }
-              %td= button_to 'Stop', sc, method: :delete, data: { disable_with: "Stopping..." }, confirm: 'Are you sure you want to stop the instance?', params: { kill_type: 'stop' }
-              %td= button_to 'Terminate', sc, method: :delete, data: { disable_with: "Terminating..." }, confirm: 'Are you sure you want to terminate the instance?  You\'ll loose all your data too.', params: { kill_type: 'terminate' }
-              / %td= button_to 'Destroy', sc, :method => :delete, :data => { :confirm => 'Are you sure?' }
+              %td= link_to 'Show', smash_client_path(sc), class: 'btn', method: :get, data: { disable_with: '...'}
+              %td= link_to 'Edit', edit_smash_client_path(sc), class: 'btn', method: :get, data: { disable_with: '...'}
+              %td= link_to 'Stop', stop_path( id: sc.contracts.first.id ), class: 'btn', data: {disable_with: 'Stopping...'}, confirm: 'Are you sure you want to stop the instance?'
+              %td= link_to 'Terminate', terminate_path( id: sc.contracts.first.id ), { class: 'btn', data: {disable_with: 'Terminating...'}, confirm: 'Are you sure you want to terminate the instance?  You\'ll loose all your data too.' }
 
       %br
 
-  = link_to 'New AWS instance and Smash client', new_smash_client_path
+  = link_to 'Create a new AWS instance and Smash client', new_smash_client_path
+
+#overlay

@@ -83,3 +83,9 @@ body {
   border-color: white;
   overflow: auto;
 }
+
+#overlay {
+  display: none;
+  opacity: 50%;
+  background-color: gray;
+}
