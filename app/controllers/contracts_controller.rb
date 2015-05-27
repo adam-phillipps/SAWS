@@ -1,4 +1,6 @@
 class ContractsController < ApplicationController
+#  include AwsRobot
+
   before_action :set_contract, only: [:show, :edit, :update, :destroy]
 
   # GET /contracts
@@ -57,14 +59,17 @@ class ContractsController < ApplicationController
     contract = Contract.find( params[:id] )
     if contract.stop!
       logger.info 'inside stop'
-      format.html { redirect_to :root, notice: 'Successfully stoped the instance' }
+      @smash_client = contract.smash_client
+      @smash_clients = SmashClient.where( user: current_user.user_name )
+      render "smash_clients/index"
+      #format.html { redirect_to :root, notice: 'Successfully stoped the instance' }
     else
-      format.html { redirect_to :root, notice: 'Something went wrong stopping the instance' }
+      render "smash_clients/index"
+      #format.html { redirect_to :root, notice: 'Something went wrong stopping the instance' }
     end
   end
 
   def terminate_instance
-    byebug
     contract = Contract.find( params[:id] )
     if contract.terminate!
       logger.info 'Successfully terminated your instance'

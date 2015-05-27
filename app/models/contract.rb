@@ -3,7 +3,6 @@ class Contract < ActiveRecord::Base
 
   belongs_to :smash_client, dependent: :destroy
   before_create :set_name
-#  before_destroy :stop, unless: :cannot_be_stopped?
   delegate :ec2_client, :ec2_resource, to: :smash_client
   self.inheritance_column = :instance_type # this line is not needed when using :type but is for other column names
 
@@ -40,7 +39,6 @@ class Contract < ActiveRecord::Base
   end
   
   def set_name
-    byebug
     self.name ||= self.smash_client.name
   end
 
@@ -59,7 +57,6 @@ class Contract < ActiveRecord::Base
 
   def set_instance_id
     begin
-      byebug
       @instance_id ||= ec2_client.describe_instances(
         filters: [
           { name: 'tag:Name', values: [self.name] },
@@ -89,7 +86,6 @@ class Contract < ActiveRecord::Base
   end
 
   def stop
-    byebug
     id = self.instance_id
     if id.nil?
       'instance is already stopped or does not exist'
@@ -99,7 +95,6 @@ class Contract < ActiveRecord::Base
         ec2_client.wait_until(:instance_stopped, instance_ids:[id])
         self.update(instance_state: 'stopped')
         logger.info "instance stopped"
-        true
       rescue => e
         raise "There was a problem stopping the instance: #{e}"
       end
@@ -116,10 +111,26 @@ class Contract < ActiveRecord::Base
       begin
         ec2_client.wait_until(:instance_terminated, instance_ids:[id])
         logger.info "instance stopped"
-        true
       rescue => e
-        raise "failed waiting for instance: #{e.message}"
+        raise "There was a problem terminating the instance: #{e.message}"
       end
     end
+  end
+
+  def instance_memory
+    @memories = {'t2.micro' => '1-GiB', 't2.small' => '2-GiB', 't2.medium' => '4-GiB',
+      'm3.medium' => '3.75-GiB', 'm3.large' => '7.5-GiB', 'm3.xlarge' => '15-GiB', 'm3.2xlarge' => '30-GiB',
+      'c4.large' => '3.75-GiB', 'c4.xlarge' => '7.5-GiB', 'c4.2xlarge' => '15-GiB', 'c4.4xlarge' => '30-GiB', 'c4.8xlarge' => '60-GiB',
+      'c3.large' => '3.75-GiB', 'c3.xlarge' => '7.5-GiB', 'c3.2xlarge' => '15-GiB', 'c3.4xlarge' => '30-GiB', 'c3.8xlarge' => '60-GiB',
+      'r3.large' => '15.25-GiB', 'r3.xlarge' => '30.5-GiB', 'r3.2xlarge' => '61-GiB', 'r3.4xlarge' => '122-GiB', 'r3.8xlarge' => '244-GiB',
+      'g2.2xlarge' => '15-GiB', 'g2.8xlarge' => '60-GiB',
+      'i2.xlarge' => '30.5-GiB', 'i2.2xlarge' => '61-GiB', 'i2.4xlarge' => '122-GiB', 'i2.8xlarge' => '244-GiB',
+      'd2.xlarge' => '30.5-GiB', 'd2.2xlarge' => '61-GiB', 'd2.4xlarge' => '122-GiB', 'd2.8xlarge' => '244-GiB'}
+      byebug
+      @memories[ec2_client.describe_instance_attribute(instance_id: self.instance_id, attribute: 'instanceType').instance_type.first]
+  end
+
+  def instance_cpu
+    'coming soon...'
   end
 end

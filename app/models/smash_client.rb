@@ -19,7 +19,7 @@ class SmashClient < ActiveRecord::Base
   end
 
   def ec2_client
-    @client ||= Aws::EC2::Client.new(credentials: creds, region: home_region)#config[:regions].first)
+    @client ||= Aws::EC2::Client.new(credentials: creds, region: home_region)
   end  # end connect
 
   def ec2_resource
@@ -31,7 +31,7 @@ class SmashClient < ActiveRecord::Base
   end
 
   def config
-  	@config ||= YAML.load(File.open(File.expand_path(File.join(Rails.root, 'config/connection_config.yml'))))[self.user]
+    @config ||= YAML.load(File.open(File.expand_path(File.join(Rails.root, 'config/connection_config.yml'))))[self.user]
   end
 
   def home_region
