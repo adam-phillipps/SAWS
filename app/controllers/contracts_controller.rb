@@ -1,6 +1,8 @@
 class ContractsController < ApplicationController
+#  include AwsRobot
+
   before_action :set_contract, only: [:show, :edit, :update, :destroy]
-  belongs_to :smash_client, dependant_destroy: true
+
   # GET /contracts
   # GET /contracts.json
   def index
@@ -26,7 +28,7 @@ class ContractsController < ApplicationController
     params[:contract][:name] = @contract.smash_client.name
     @contract = Contract.new(contract_params)
     respond_to do |format|
-      if @contract.save
+      if @contract.save!
         format.html { redirect_to @contract, notice: 'Contract was successfully created.' }
       else
         format.html { render :new }
@@ -45,11 +47,33 @@ class ContractsController < ApplicationController
     end
   end
 
-  # DELETE /contracts/1
   def destroy
     @contract.destroy
     respond_to do |format|
       format.html { redirect_to contracts_url, notice: 'Contract was successfully destroyed.' }
+    end
+  end
+
+  def stop_instance
+    contract = Contract.find( params[:id] )
+    if contract.stop!
+      logger.info 'inside stop'
+      @smash_client = contract.smash_client
+      @smash_clients = SmashClient.where( user: current_user.user_name )
+      render "smash_clients/index"
+      #format.html { redirect_to :root, notice: 'Successfully stoped the instance' }
+    else
+      render "smash_clients/index"
+      #format.html { redirect_to :root, notice: 'Something went wrong stopping the instance' }
+    end
+  end
+
+  def terminate_instance
+    contract = Contract.find( params[:id] )
+    if contract.terminate!
+      logger.info 'Successfully terminated your instance'
+    else
+      logger.info 'There was a problem terminating your instance'
     end
   end
 
@@ -58,12 +82,10 @@ class ContractsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_contract
       @contract = Contract.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def contract_params
       params.require(:contract).permit(:name, :instance_id, :smash_client_id, :instance_type)
     end

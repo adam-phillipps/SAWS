@@ -9,7 +9,7 @@
 
     .field
       = f.label :name
-      = f.text_field :name
+      = f.text_field :name, autofocus: true
 
     .field
       = f.fields_for :contracts do |c|
@@ -18,4 +18,4 @@
         = c.label :instance_type, 'on demand instance'
         = c.radio_button :instance_type, 'OnDemand'
     .actions
-      = f.button 'Create', data: {disable_with: "<i class='fa fa-spinner fa-spin'</i>Creating..."}
+      = f.button 'New Instance', data: {disable_with: "<i class='fa fa-spinner fa-spin'</i>Creating..."}

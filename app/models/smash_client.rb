@@ -8,6 +8,7 @@ class SmashClient < ActiveRecord::Base
   workflow do
     state :new do
       event :save, transition_to: :created
+      event :create, transition_to: :created
     end
 
     state :created do
@@ -17,9 +18,8 @@ class SmashClient < ActiveRecord::Base
     state :destroyed
   end
 
-  # configures Aws and creates an EC2 object -> @ec2
   def ec2_client
-    @client ||= Aws::EC2::Client.new(credentials: creds, region: home_region)#config[:regions].first)
+    @client ||= Aws::EC2::Client.new(credentials: creds, region: home_region)
   end  # end connect
 
   def ec2_resource
@@ -31,7 +31,7 @@ class SmashClient < ActiveRecord::Base
   end
 
   def config
-  	@config ||= YAML.load(File.open(File.expand_path(File.join(Rails.root, 'config/connection_config.yml'))))[self.user]
+    @config ||= YAML.load(File.open(File.expand_path(File.join(Rails.root, 'config/connection_config.yml'))))[self.user]
   end
 
   def home_region
@@ -51,5 +51,3 @@ class SmashClient < ActiveRecord::Base
     @home_zone ||= all_zones.first
   end
 end
-# smash_client makes bids happen, security, memory allocation, instance types etc.
-# bids take care of the ami copy and whatever else needs to happen for a bid to take place.

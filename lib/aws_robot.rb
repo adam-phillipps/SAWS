@@ -1,5 +1,6 @@
 module AwsRobot
   def ec2_client
+    byebug
     Aws::EC2::Client.new(credentials: aws_creds, region: home_zone)
   end
 
