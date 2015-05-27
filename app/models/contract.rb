@@ -126,7 +126,6 @@ class Contract < ActiveRecord::Base
       'g2.2xlarge' => '15-GiB', 'g2.8xlarge' => '60-GiB',
       'i2.xlarge' => '30.5-GiB', 'i2.2xlarge' => '61-GiB', 'i2.4xlarge' => '122-GiB', 'i2.8xlarge' => '244-GiB',
       'd2.xlarge' => '30.5-GiB', 'd2.2xlarge' => '61-GiB', 'd2.4xlarge' => '122-GiB', 'd2.8xlarge' => '244-GiB'}
-      byebug
       @memories[ec2_client.describe_instance_attribute(instance_id: self.instance_id, attribute: 'instanceType').instance_type.first]
   end
 

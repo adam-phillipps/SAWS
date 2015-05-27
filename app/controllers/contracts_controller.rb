@@ -55,7 +55,6 @@ class ContractsController < ApplicationController
   end
 
   def stop_instance
-    byebug
     contract = Contract.find( params[:id] )
     if contract.stop!
       logger.info 'inside stop'
