@@ -3,8 +3,8 @@ class Contract < ActiveRecord::Base
 
   belongs_to :smash_client, dependent: :destroy
   before_create :set_name
-  delegate :ec2_client, :ec2_resource, to: :smash_client
-  self.inheritance_column = :instance_type # this line is not needed when using :type but is for other column names
+  delegate :ec2_client, :ec2_resource, :all_zones, :creds, :config, :zone_to_region, to: :smash_client
+  self.inheritance_column = :instance_type
 
   workflow do
     state :new do
@@ -28,8 +28,6 @@ class Contract < ActiveRecord::Base
     state :deleted
   end
 
-  # We will need a way to know which types
-  # will subclass the contract model
   def self.instance_type
     %w(spot on_demand)
   end
@@ -42,24 +40,12 @@ class Contract < ActiveRecord::Base
     self.name ||= self.smash_client.name
   end
 
-  def status( options={} )
-    begin
-      ec2_client.describe_instances(instance_ids: [self.instance_id])[:reservations].
-        first.instances.first[:state].name
-    rescue => e
-        "gone"
-    end
-  end # end status
-
-#  def start
-#    self.instance_type.eql? 'Spot' ? self.start_spot_instance : self.start_on_demand_instance
-#  end # end start
-
   def set_instance_id
     begin
+      byebug
       @instance_id ||= ec2_client.describe_instances(
         filters: [
-          { name: 'tag:Name', values: [self.name] },
+          { name: 'tag:Name', values: ["#{name}*"] },
           { name: 'instance-state-name', values: ['stopping', 'stopped']} ]).
             first.reservations.first.instances.first.instance_id # gets an instance id
       self.update(instance_id: @instance_id) unless self.instance_id
@@ -70,51 +56,53 @@ class Contract < ActiveRecord::Base
     nil
   end
 
-  def get_ami( options={} )
-    image_name = self.name+'*'
-    @image ||= self.smash_client.ec2_client.
-      describe_images( owners: ['self'],filters: [name: 'tag:Name', values: [image_name]] ).images.last 
+  def new_version_number
+    today = Time.now.to_i
+    epoch = Date.new(1970,1,1).to_time.to_i
+    (today - epoch).to_i
+  end
+
+  def status( options={} )
+    begin
+      ec2_client.describe_instances(instance_ids: [self.instance_id])[:reservations].
+        first.instances.first[:state].name
+    rescue => e
+        "gone"
+    end
+  end
+
+  def newest_ami_version_number
+    ec2_client.describe_images( 
+      owners: ['self'],
+      filters: [
+        {name: 'tag:Name', values: [image_name]},
+        {name: 'tag:version', values: ['*']}]).
+      images.map{|image| image.tags.select{|tag| tag.value if tag.key.eql? 'version'}}.
+        flatten.max_by{|tag| tag.value.to_i}.value
+  end
+
+  def newest_instance_version_number
+    ec2_client.describe_instances(
+      filters: [
+        {name: 'tag:Name', values: ["#{name}*"]},
+        {name: 'instance-state-name', values: ['stopping', 'stopped']}]).
+      reservations.map{|res| res.instances.map{|inst| inst.tags.select{|tag| tag.value if tag.key.eql? 'version'}}}.
+        flatten.max_by{|tag| tag.value.to_i}.value
+  end
+
+  def get_ami
+    byebug
+    image_name = name+'*'
+    @image ||= ec2_client.describe_images( 
+      owners: ['self'], 
+      filters: [
+        { name: 'tag:Name', values: [image_name] },
+        { name: 'tag:version', values: [newest_ami_version_number] }]).images.first
   end
 
   def get_block_device_mappings
-    self.smash_client.ec2_client.describe_images(image_ids: [get_ami.image_id]).
+    self.smash_client.ec2_client.describe_images(image_ids: [newest_ami(get_ami.image_id)]).
       first.images.first.block_device_mappings
-  end
-
-  def get_related_instances
-    ec2 = ec2_client.describe_instances()
-  end
-
-  def stop
-    id = self.instance_id
-    if id.nil?
-      'instance is already stopped or does not exist'
-    else
-      ec2_client.stop_instances(instance_ids: [id]) 
-      begin
-        ec2_client.wait_until(:instance_stopped, instance_ids:[id])
-        self.update(instance_state: 'stopped')
-        logger.info "instance stopped"
-      rescue => e
-        raise "There was a problem stopping the instance: #{e}"
-      end
-    end
-  end
-
-  def terminate
-    id = self.instance_id
-    if id.nil?
-      return 'instance is already terminated or does not exist'
-    else
-      ec2_client.terminate_instances(instance_ids: [id])
-      self.update(instance_state: 'terminated') 
-      begin
-        ec2_client.wait_until(:instance_terminated, instance_ids:[id])
-        logger.info "instance stopped"
-      rescue => e
-        raise "There was a problem terminating the instance: #{e.message}"
-      end
-    end
   end
 
   def instance_memory
@@ -126,10 +114,29 @@ class Contract < ActiveRecord::Base
       'g2.2xlarge' => '15-GiB', 'g2.8xlarge' => '60-GiB',
       'i2.xlarge' => '30.5-GiB', 'i2.2xlarge' => '61-GiB', 'i2.4xlarge' => '122-GiB', 'i2.8xlarge' => '244-GiB',
       'd2.xlarge' => '30.5-GiB', 'd2.2xlarge' => '61-GiB', 'd2.4xlarge' => '122-GiB', 'd2.8xlarge' => '244-GiB'}
-      @memories[ec2_client.describe_instance_attribute(instance_id: self.instance_id, attribute: 'instanceType').instance_type.first]
+      if self.instance_id
+        @memories[ec2_client.describe_instance_attribute(instance_id: self.instance_id, attribute: 'instanceType').instance_type.first]
+      else
+        'unk'
+      end
   end
 
   def instance_cpu
     'coming soon...'
+  end
+
+  def terminate
+    if instance_id.nil?
+      return 'instance is already terminated or does not exist'
+    else
+      ec2_client.terminate_instances(instance_ids: [instance_id])
+      self.update(instance_state: 'terminated') 
+      begin
+        ec2_client.wait_until(:instance_terminated, instance_ids:[instance_id])
+        logger.info "instance terminated"
+      rescue => e
+        raise "There was a problem terminating the instance: #{e.message}"
+      end
+    end
   end
 end

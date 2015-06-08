@@ -2,8 +2,8 @@ class SmashClient < ActiveRecord::Base
   include Workflow
 
   has_many :contracts, dependent: :destroy
-  accepts_nested_attributes_for :contracts, allow_destroy: true#, 
-#    reject_if: lambda { |attributes| attributes[:instance_type].blank? }
+  accepts_nested_attributes_for :contracts, allow_destroy: true,
+    reject_if: lambda { |attributes| attributes[:instance_type].blank? }
 
   workflow do
     state :new do
@@ -20,7 +20,7 @@ class SmashClient < ActiveRecord::Base
 
   def ec2_client
     @client ||= Aws::EC2::Client.new(credentials: creds, region: home_region)
-  end  # end connect
+  end
 
   def ec2_resource
   	@resource ||= Aws::EC2::Resource.new(client: ec2_client)
@@ -40,14 +40,18 @@ class SmashClient < ActiveRecord::Base
 
   def all_regions
     @regions ||= ec2_client.describe_regions.regions.map(&:region_name)
-  end # end all_regions
+  end
 
   def all_zones
     @zones ||= ec2_client.describe_availability_zones.
       availability_zones.map(&:zone_name)
-  end # end all_zones
+  end
 
   def home_zone
     @home_zone ||= all_zones.first
+  end
+
+  def zone_to_region( zone )
+    zone[0...-1]
   end
 end

@@ -56,8 +56,7 @@ class ContractsController < ApplicationController
 
   def stop_instance
     contract = Contract.find( params[:id] )
-    if contract.stop!
-      logger.info 'inside stop'
+    if (contract.current_state < :deleted) && contract.stop!
       @smash_client = contract.smash_client
       @smash_clients = SmashClient.where( user: current_user.user_name )
       render "smash_clients/index"

@@ -2,7 +2,7 @@
   %h2
     = "#{current_user.user_name}'s Clients".titleize
   .clients-table
-    - if @smash_clients.count > 0
+    - unless @smash_clients.nil? || @smash_clients.count < 1
       %table.table.table-striped
         %thead
           %tr
@@ -13,7 +13,7 @@
             %th Action
         %tbody
           - @smash_clients.each do |sc|
-            - unless sc.contracts.first.deleted?
+            - if sc.contracts.first.running?
               %tr
                 %td= sc.name
                 %td= sc.contracts.first.status

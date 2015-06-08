@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150517170546) do
+ActiveRecord::Schema.define(version: 20150606145025) do
 
   create_table "contracts", force: :cascade do |t|
     t.integer  "smash_client_id", limit: 4
@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 20150517170546) do
     t.string   "instance_type",   limit: 255
     t.string   "instance_state",  limit: 255, default: "inactive"
     t.string   "workflow_state",  limit: 255, default: "new",      null: false
+    t.string   "request_id",      limit: 255
   end
 
   add_index "contracts", ["smash_client_id"], name: "index_contracts_on_smash_client_id", using: :btree
@@ -50,6 +51,7 @@ ActiveRecord::Schema.define(version: 20150517170546) do
     t.string   "username",               limit: 255
     t.string   "user_name",              limit: 255
     t.string   "workflow_state",         limit: 255, default: "new", null: false
+    t.boolean  "admin",                  limit: 1
   end
 
   add_index "users", ["name"], name: "index_users_on_name", unique: true, using: :btree

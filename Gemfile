@@ -55,5 +55,6 @@ group :development, :test do
 	# CUSTOM DEVELOPMENT GEMS
 	# -----------------------
   gem 'haml-rails', '~> 0.8'
+  gem 'rack-mini-profiler'
 end
 

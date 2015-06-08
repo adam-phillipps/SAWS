@@ -2,6 +2,7 @@ class OnDemand < Contract
   after_create :set_instance_id, :start!
 
   def start
+    byebug
     if instance_id.nil?
       start_on_demand_instance_from_ami( get_ami( name: self.smash_client.name, zone: self.smash_client.home_zone ))
     else
@@ -11,13 +12,16 @@ class OnDemand < Contract
 
   # uses an instance id to start an on_demand instance
   def start_instance_with_id( id )
+    byebug
     begin
       instance = ec2_client.start_instances( instance_ids: [id] ).starting_instances.first
       id = instance.first.id
       begin
-        self.update( instance_id: id )
+        self.update(instance_id: id)
         ec2_client.wait_until( :instance_running, instance_ids:[id] )
-        ec2_client.create_tags( resources: [id], tags: [key: 'Name', value: self.name] )
+        ec2_client.create_tags( resources: [id], tags: [
+          { key: 'Name', value: name },
+          { key: 'version', value: new_version_number }] )
         "instance running"
       rescue => e
         "failed updating instance: #{e}"
@@ -29,8 +33,13 @@ class OnDemand < Contract
   end # end start_instance
 
   def start_on_demand_instance_from_ami( image )
+    byebug
     # watch for the bug fix from amazon.  the api won't accept encrypted = false
-    image.block_device_mappings.map { |bdm| bdm.ebs.encrypted = nil if bdm.ebs.encrypted.eql? false }
+    image.block_device_mappings.map do |bdm|
+      unless bdm.ebs.nil?
+        bdm.ebs.encrypted = nil if bdm.ebs.encrypted.eql? false
+      end
+    end
     id = nil
     begin
       instance = ec2_resource.create_instances(
@@ -44,11 +53,29 @@ class OnDemand < Contract
       self.update( instance_id: id )
       ec2_client.wait_until( :instance_running, instance_ids: [id] )
       self.update( instance_state: 'running')
-      ec2_client.create_tags( resources: [id], tags: [{ key: 'Name', value: self.name }])
+      ec2_client.create_tags( resources: [id], tags: [
+        { key: 'Name', value: name },
+        { key: 'version', value: new_version_number }])
       logger.info 'instance running'
     rescue => e
       "error starting instance: #{e}"
     end
     ec2_client.describe_instances( instance_ids: [id] )
+  end
+
+  def stop
+    id = self.instance_id
+    if id.nil?
+      'instance is already stopped or does not exist'
+    else
+      ec2_client.stop_instances(instance_ids: [id]) 
+      begin
+        ec2_client.wait_until(:instance_stopped, instance_ids: [id])
+        self.update(instance_state: 'stopped')
+        logger.info "instance stopped"
+      rescue => e
+        raise "There was a problem stopping the instance: #{e}"
+      end
+    end
   end
 end

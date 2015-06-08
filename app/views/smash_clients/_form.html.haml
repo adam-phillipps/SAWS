@@ -9,13 +9,11 @@
 
     .field
       = f.label :name
-      = f.text_field :name, autofocus: true
+      = f.text_field :name, autofocus: true, required: true, value: 'Weka'
 
     .field
       = f.fields_for :contracts do |c|
-        = c.label :instance_type, 'spot instance'
-        = c.radio_button :instance_type, 'Spot', checked: true
         = c.label :instance_type, 'on demand instance'
-        = c.radio_button :instance_type, 'OnDemand'
+        = c.radio_button :instance_type, 'OnDemand', checked: true
     .actions
       = f.button 'New Instance', data: {disable_with: "<i class='fa fa-spinner fa-spin'</i>Creating..."}
