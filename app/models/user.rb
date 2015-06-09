@@ -17,6 +17,7 @@ class User < ActiveRecord::Base
   workflow do
     state :new do
       event :send_email, transition_to: :waiting_for_response
+      event :destroy, transition_to: :destroyed
     end
 
     state :wating_for_response do
@@ -31,6 +32,7 @@ class User < ActiveRecord::Base
     state :active
     state :rejected
     state :deleted
+    state :destroyed
   end
 
   # creates read/write for login var.  not sure why we need this since it's in attr_accessor.  research later

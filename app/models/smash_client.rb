@@ -9,13 +9,23 @@ class SmashClient < ActiveRecord::Base
     state :new do
       event :save, transition_to: :created
       event :create, transition_to: :created
+      event :delete, transition_to: :destroyed
+      event :destroy, transition_to: :destroyed
     end
 
     state :created do
+      event :delete, transition_to: :destroyed
       event :destroy, transition_to: :destroyed
     end
     
     state :destroyed
+  end
+
+  def save_to_destroy
+    byebug
+    self.contracts.delete_all
+    self.save!
+    self.destroy!
   end
 
   def ec2_client

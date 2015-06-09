@@ -1,7 +1,7 @@
 class ContractsController < ApplicationController
 #  include AwsRobot
 
-  before_action :set_contract, only: [:show, :edit, :update, :destroy]
+  before_action :set_contract, only: [:show, :edit, :update, :destroy!]
 
   # GET /contracts
   # GET /contracts.json
@@ -40,7 +40,7 @@ class ContractsController < ApplicationController
   def update
     respond_to do |format|
       if @contract.update(contract_params)
-        format.html { redirect_to @contract, notice: 'Contract was successfully updated.' }
+        format.html { redirect_to @contract, notice: 'Instance was successfully updated.' }
       else
         format.html { render :edit }
       end
@@ -48,9 +48,10 @@ class ContractsController < ApplicationController
   end
 
   def destroy
-    @contract.destroy
+    @contract.destroy!
     respond_to do |format|
-      format.html { redirect_to contracts_url, notice: 'Contract was successfully destroyed.' }
+      #format.html { redirect_to contracts_url, notice: 'Contract was successfully destroyed.' }
+      format.html { redirect_to smash_clients_url, notice: 'Instance was successfully destroyed.' }
     end
   end
 

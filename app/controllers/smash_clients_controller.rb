@@ -1,11 +1,21 @@
 class SmashClientsController < ApplicationController
-  before_action :set_smash_client, only: [:show, :edit, :update, :destroy]
+  before_action :set_smash_client, only: [:show, :edit, :update, :destroy!]
   before_action :authenticate_user!
 
   def index
     if user_signed_in?
+      query = "SELECT * FROM Smash_Clients 
+          WHERE user = 'adam' AND 
+          workflow_state != 'destroyed' OR 
+          id = (SELECT smash_client_id 
+            FROM contracts 
+            WHERE name = 'Weka' AND
+            instance_state = 'running')"
+
+      sql_query = ActiveRecord::Base.connection.execute(query)
+      ids = sql_query.map{|k| k[0]}
       @smash_client
-      @smash_clients = SmashClient.where( user: current_user.user_name )
+      @smash_clients = SmashClient.find(ids)
     else
       redirect_to users_path
     end
@@ -57,7 +67,12 @@ class SmashClientsController < ApplicationController
 
   private
     def set_smash_client
-      @smash_client = SmashClient.find(params[:id])
+      byebug
+      begin
+        @smash_client = SmashClient.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        redirect_to smash_clients_path
+      end
     end
 
     def smash_client_params

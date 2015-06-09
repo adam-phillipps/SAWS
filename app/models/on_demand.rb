@@ -3,16 +3,22 @@ class OnDemand < Contract
 
   def start
     byebug
-    if instance_id.nil?
-      start_on_demand_instance_from_ami( get_ami( name: self.smash_client.name, zone: self.smash_client.home_zone ))
+    if cannot_be_started?
+      'cannot start the instance'
+      smash_client.contracts.delete_all
+      smash_client.delete
+#      smash_client.save_to_destroy! unless smash_client.destroyed?
     else
-      start_instance_with_id( self.instance_id )
+      if instance_id.nil?
+        start_on_demand_instance_from_ami( get_ami( name: self.smash_client.name, zone: self.smash_client.home_zone ))
+      else
+        start_instance_with_id(instance_id)
+      end
     end
   end # end_start_on_demand_instance
 
   # uses an instance id to start an on_demand instance
   def start_instance_with_id( id )
-    byebug
     begin
       instance = ec2_client.start_instances( instance_ids: [id] ).starting_instances.first
       id = instance.first.id
@@ -33,7 +39,6 @@ class OnDemand < Contract
   end # end start_instance
 
   def start_on_demand_instance_from_ami( image )
-    byebug
     # watch for the bug fix from amazon.  the api won't accept encrypted = false
     image.block_device_mappings.map do |bdm|
       unless bdm.ebs.nil?

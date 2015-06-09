@@ -35,7 +35,9 @@ class Spot < Contract
   def instance_already_exists_in?( zone )
     ec2_client.describe_instances(filters: [
       {name: 'tag:Name', values: [self.name]},
-      {name: 'tag:availability_zone', values: [zone]}]).reservations.count > 0
+      {name: 'tag:availability_zone', values: [zone]},
+      {name: 'tag:version', values: [new_version_number]}]).
+    reservations.count > 0
   end
 
   # asks Aws what the best price is for this type of instance, then returns info 

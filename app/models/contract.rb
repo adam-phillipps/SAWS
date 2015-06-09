@@ -12,6 +12,7 @@ class Contract < ActiveRecord::Base
       event :save, transition_to: :created
       event :stop, transition_to: :deleted
       event :terminate, transition_to: :deleted
+      event :delete_all, transition_to: :destroyed
     end
 
     state :created do
@@ -26,6 +27,7 @@ class Contract < ActiveRecord::Base
     end
 
     state :deleted
+    state :destroyed
   end
 
   def self.instance_type
@@ -33,7 +35,31 @@ class Contract < ActiveRecord::Base
   end
 
   def cannot_be_stopped?
-    ['stopped', 'stopping', 'terminated', 'shutting-down', 'inactive'].include? self.instance_state
+    ['stopped', 'stopping', 'terminated', 'shutting-down', 'inactive'].include? instance_state
+  end
+
+  def cannot_be_started?
+    ['terminated', 'shutting-down', 'starting', 'running', 'rebooting', nil].include? instance_status_check
+  end
+
+  def save_to_destroy
+    self.save!
+    self.destroy!
+  end
+
+  def instance_status_check
+    begin
+    instance_state = ec2_client.describe_instances(
+      filters: [
+        {name: 'tag:Name', values: ["#{name}*"] },
+        {name: 'tag:version', values: [newest_instance_version_number]}]).
+      first.reservations.first.instances.first[:state].name
+      self.update(instance_state: instance_state)
+    rescue => e
+      logger.info "no such instance: #{e}, getting AMI"
+      self.update(instance_id: nil)
+    end
+    instance_state
   end
   
   def set_name
@@ -42,12 +68,11 @@ class Contract < ActiveRecord::Base
 
   def set_instance_id
     begin
-      byebug
       @instance_id ||= ec2_client.describe_instances(
         filters: [
-          { name: 'tag:Name', values: ["#{name}*"] },
-          { name: 'instance-state-name', values: ['stopping', 'stopped']} ]).
-            first.reservations.first.instances.first.instance_id # gets an instance id
+          {name: 'tag:Name', values: ["#{name}*"] },
+	   {name: 'tag:version', values: [newest_instance_version_number]}]).
+            first.reservations.first.instances.first.instance_id
       self.update(instance_id: @instance_id) unless self.instance_id
     rescue => e
       logger.info "no such instance: #{e}, getting AMI"
@@ -62,7 +87,7 @@ class Contract < ActiveRecord::Base
     (today - epoch).to_i
   end
 
-  def status( options={} )
+  def status
     begin
       ec2_client.describe_instances(instance_ids: [self.instance_id])[:reservations].
         first.instances.first[:state].name
@@ -76,6 +101,7 @@ class Contract < ActiveRecord::Base
       owners: ['self'],
       filters: [
         {name: 'tag:Name', values: [image_name]},
+        {name: 'instance-state-name', values: ['stopping', 'stopped', 'running', 'pending', 'rebooting']},
         {name: 'tag:version', values: ['*']}]).
       images.map{|image| image.tags.select{|tag| tag.value if tag.key.eql? 'version'}}.
         flatten.max_by{|tag| tag.value.to_i}.value
@@ -85,13 +111,12 @@ class Contract < ActiveRecord::Base
     ec2_client.describe_instances(
       filters: [
         {name: 'tag:Name', values: ["#{name}*"]},
-        {name: 'instance-state-name', values: ['stopping', 'stopped']}]).
+        {name: 'instance-state-name', values: ['stopping', 'stopped', 'running']}]).
       reservations.map{|res| res.instances.map{|inst| inst.tags.select{|tag| tag.value if tag.key.eql? 'version'}}}.
         flatten.max_by{|tag| tag.value.to_i}.value
   end
 
   def get_ami
-    byebug
     image_name = name+'*'
     @image ||= ec2_client.describe_images( 
       owners: ['self'], 
