@@ -85,7 +85,7 @@ Finish up by running the MySQL set up script:
 ```sh
 $ sudo /usr/bin/mysql_secure_installation
 ```
-#Step 4 — Install Apache
+##Step 4 — Install Apache
 
 To install Apache, type this command:
 ```sh
@@ -95,7 +95,7 @@ Then you should be able to see default apache2 web page.
 
 
 
-#Step 5 — Install Passenger
+##Step 5 — Install Passenger
 First, install the PGP key for the repository server:
 ```sh
 $ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 561F9B9CAC40B2F7
@@ -142,7 +142,7 @@ $ sudo rm /usr/bin/ruby
 $ sudo ln -s /usr/local/bin/ruby /usr/bin/ruby
 ```
 
-#Step 6 — Deploy
+##Step 6 — Deploy
 At this point you can deploy your own Rails application if you have one ready. If you want to deploy an existing app, you can upload your project to the server and skip to the /etc/apache2/sites-available/default step.
 Now let's see how to do it.
 
@@ -154,8 +154,9 @@ $ cd ~/workspace
 Now clone the app
 ```sh
 $ git clone https://github.com/adam-phillipps/saws.git
-You should enter your github username and password
 ```
+You should enter your github username and password
+
 Move to the app root directory
 ```sh
 $ cd saws/
