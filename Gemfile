@@ -41,6 +41,7 @@ gem 'mysql2'
 gem 'bootstrap-sass', '~> 3.2.0'
 gem 'autoprefixer-rails'
 gem 'workflow'
+gem 'haml-rails', '~> 0.8'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -54,7 +55,6 @@ group :development, :test do
   gem 'spring'
 	# CUSTOM DEVELOPMENT GEMS
 	# -----------------------
-  gem 'haml-rails', '~> 0.8'
   gem 'rack-mini-profiler'
 end
 
