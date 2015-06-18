@@ -15,8 +15,8 @@
  *= require bootstrap
  */
 
-@import "bootstrap-sprockets"
-@import "bootstrap"
+@import "bootstrap-sprockets";
+@import "bootstrap";
 
 
 * {
@@ -43,7 +43,7 @@ body {
   right: 0;
   bottom: 40px;
   top: 40px;
-  opacity: .8;
+  opacity: 0.8;
   min-height: 400px;
   text-align: center;
   width: 80%;
@@ -63,7 +63,7 @@ body {
   padding: 15px;
   padding-bottom: 50px;
   border-radius: 15px 50px 30px;
-  opacity: .8;
+  opacity: 0.8;
   overflow: auto;
 }
 
