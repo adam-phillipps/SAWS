@@ -10,10 +10,7 @@ class ApplicationController < ActionController::Base
 	end
 
 	def ssl_required?
-		if Rails.env == "production"
-			true
-		else
-			false
-		end
+		return false if local_request? || RAILS_ENV == 'test'
+		super
 	end
 end
