@@ -4,17 +4,12 @@ class OnDemand < Contract
   def start
     if cannot_be_started?
       logger.info 'cannot start the instance'
-#      smash_client.contracts.delete_all
-#      smash_client.delete
     end
-#      smash_client.save_to_destroy! unless smash_client.destroyed?
-#    else
-      if instance_id.nil?
-        start_instance_from_ami(get_ami)#( name: self.smash_client.name, zone: self.smash_client.home_zone ))
-      else
-        start_instance_with_id(instance_id)
-      end
-  #  end
+    if instance_id.nil?
+      start_instance_from_ami(get_ami)#( name: self.smash_client.name, zone: self.smash_client.home_zone ))
+    else
+      start_instance_with_id(instance_id)
+    end
   end # end_start_on_demand_instance
 
   # uses an instance id to start an on_demand instance
@@ -53,7 +48,6 @@ class OnDemand < Contract
         instance_type: image.tags.select { |tag| tag.key.eql? 'instance_types' }.map { |t| t.value }.first,
         placement: { availability_zone: self.smash_client.home_zone },
         block_device_mappings: image.block_device_mappings )
-#      id = instance.first.id
       self.update( instance_id: instance.first.id )
       begin
         ec2_client.wait_until( :instance_running, instance_ids: [instance_id] )
