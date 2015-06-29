@@ -56,8 +56,9 @@ class Contract < ActiveRecord::Base
       first.reservations.first.instances.first[:state].name
       self.update(instance_state: instance_state)
     rescue => e
-      logger.info "no such instance: #{e}, getting AMI"
+#      logger.info "no such instance: #{e}, getting AMI"
       self.update(instance_id: nil)
+      nil
     end
     instance_state
   end
@@ -100,8 +101,7 @@ class Contract < ActiveRecord::Base
     ec2_client.describe_images( 
       owners: ['self'],
       filters: [
-        {name: 'tag:Name', values: [image_name]},
-        {name: 'instance-state-name', values: ['stopping', 'stopped', 'running', 'pending', 'rebooting']},
+        {name: 'tag:Name', values: [name]},
         {name: 'tag:version', values: ['*']}]).
       images.map{|image| image.tags.select{|tag| tag.value if tag.key.eql? 'version'}}.
         flatten.max_by{|tag| tag.value.to_i}.value

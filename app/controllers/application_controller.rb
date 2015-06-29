@@ -8,4 +8,10 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.for(:sign_in) { |u| u.permit(:login, :user_name, :email, :password, :remember_me) }
     devise_parameter_sanitizer.for(:account_update) { |u| u.permit(:user_name, :email, :password, :password_confirmation, :current_password) }
   end
+
+  def ssl_required?
+    byebug
+    return false if local_request? || RAILS_ENV == 'test'
+    super
+  end
 end

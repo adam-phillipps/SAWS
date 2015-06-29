@@ -1,6 +1,5 @@
 module AwsRobot
   def ec2_client
-    byebug
     Aws::EC2::Client.new(credentials: aws_creds, region: home_zone)
   end
 
@@ -9,12 +8,10 @@ module AwsRobot
   end
 
   def aws_creds
-    byebug
     Aws::Credentials.new(aws_config['AccessKeyId'], aws_config['SecretAccessKey'])
   end
 
   def aws_config
-    byebug
     YAML.load(File.open(File.expand_path(File.join(Rails.root, 'config/connection_config.yml'))))[self.user]
   end
 
@@ -23,7 +20,6 @@ module AwsRobot
   # uses the name of the desired instance as a param.
   # returns an Aws::EC2::Image
   def get_ami(options={})
-    byebug
     image_name = options[:name]+'*'
     ec2_client.
       describe_images(owners: ['self'],filters: [name: 'tag:Name', values: [image_name]]).images.last 
@@ -38,7 +34,6 @@ module AwsRobot
   # gets images and returns a mapping of snapshots to an appropriate ami to the server given
   # as the parameter
 #  def get_ami( options={} )
-#    byebug
 #    server_name = options[:server]+"*"
 #    image = Aws.memoize do # memoize caches results so it makes less requests to gather useful info
 #      ami_array = $ec2.images.with_owner("self").filter("name", server_name).to_a # gets an image collection filtered to find only SA AMIs
@@ -53,7 +48,6 @@ module AwsRobot
 #  end # end get_ami
 
   def home_zone
-    byebug
     aws_config[:regions].first
   end
 end

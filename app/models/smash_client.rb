@@ -22,7 +22,6 @@ class SmashClient < ActiveRecord::Base
   end
 
   def save_to_destroy
-    byebug
     self.contracts.delete_all
     self.save!
     self.destroy!
