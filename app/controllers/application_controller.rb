@@ -10,7 +10,6 @@ class ApplicationController < ActionController::Base
   end
 
   def ssl_required?
-    byebug
     return false if local_request? || RAILS_ENV == 'test'
     super
   end

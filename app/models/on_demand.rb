@@ -2,7 +2,6 @@ class OnDemand < Contract
   after_create :set_instance_id, :start!
 
   def start
-    byebug
     if cannot_be_started?
       logger.info 'cannot start the instance'
 #      smash_client.contracts.delete_all
@@ -40,7 +39,6 @@ class OnDemand < Contract
   end # end start_instance
 
   def start_instance_from_ami( image )
-    byebug
     # watch for the bug fix from amazon.  the api won't accept encrypted = false
     image.block_device_mappings.map do |bdm|
       unless bdm.ebs.nil?
@@ -48,7 +46,6 @@ class OnDemand < Contract
       end
     end
     begin
-      byebug
       instance = ec2_resource.create_instances(
         image_id: image.image_id,
         max_count: 1,
@@ -59,7 +56,6 @@ class OnDemand < Contract
 #      id = instance.first.id
       self.update( instance_id: instance.first.id )
       begin
-        byebug
         ec2_client.wait_until( :instance_running, instance_ids: [instance_id] )
         self.update( instance_state: 'running')
         ec2_client.create_tags( resources: [instance_id], tags: [
@@ -67,35 +63,28 @@ class OnDemand < Contract
           { key: 'version', value: new_version_number.to_s }])
         logger.info 'instance running'
       rescue => e
-        byebug
         logger.info "there was a problem starting your instance #{e}"
       end
     rescue => e
-      byebug
       "error starting instance: #{e}"
     end
-    byebug
     ec2_client.describe_instances( instance_ids: [instance_id] )
   end
 
   def stop
-    byebug
     if instance_id.nil?
       'instance is already stopped or does not exist'
     else
       begin
         ec2_client.stop_instances(instance_ids: [instance_id]) 
         begin
-          byebug
           ec2_client.wait_until(:instance_stopped, instance_ids: [instance_id])
           self.update(instance_state: 'stopped')
           logger.info "instance stopped"
         rescue => e
-          byebug
           logger.info "There was a problem stopping the instance: #{e}"
         end
       rescue => e
-        byebug
         self.update(instance_state: 'unk')
       end
     end
