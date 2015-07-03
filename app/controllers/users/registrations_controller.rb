@@ -36,20 +36,12 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # GET /resource/edit
   def edit
-    byebug
     super
   end
 
 def set_minimum_password_length
   if devise_mapping.validatable?
     @minimum_password_length = resource_class.password_length.min
-  end
-
-  def value_to_bool( value )
-    byebug
-    return true if value == true || value =~ (/^(true|t|yes|y|1)$/i)
-    return false if value == false || value.blank? || value =~ (/^(false|f|no|n|0)$/i)
-    raise ArgumentError.new("invalid value for Boolean: \"#{value}\"")
   end
 end
 

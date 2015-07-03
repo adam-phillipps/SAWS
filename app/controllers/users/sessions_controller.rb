@@ -3,14 +3,12 @@ class Users::SessionsController < Devise::SessionsController
 
   # GET /resource/sign_in
    def new
-    byebug
   #   super
    end
 
   # POST /resource/sign_in
    def create
   #   super
-    byebug
     @user = User.new(user_params)
 
     respond_to do |format|
