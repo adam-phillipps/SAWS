@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150630161720) do
+ActiveRecord::Schema.define(version: 20150703133653) do
 
   create_table "contracts", force: :cascade do |t|
     t.integer  "smash_client_id", limit: 4
@@ -35,7 +35,6 @@ ActiveRecord::Schema.define(version: 20150630161720) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string   "name",                   limit: 255
     t.string   "encrypted_password",     limit: 255, default: "",    null: false
     t.string   "email",                  limit: 255,                 null: false
     t.string   "reset_password_token",   limit: 255
@@ -46,14 +45,11 @@ ActiveRecord::Schema.define(version: 20150630161720) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip",     limit: 255
     t.string   "last_sign_in_ip",        limit: 255
-    t.string   "password",               limit: 255
-    t.string   "username",               limit: 255
     t.string   "user_name",              limit: 255
     t.string   "workflow_state",         limit: 255, default: "new", null: false
     t.boolean  "admin",                  limit: 1,   default: false
   end
 
-  add_index "users", ["name"], name: "index_users_on_name", unique: true, using: :btree
   add_index "users", ["user_name"], name: "index_users_on_user_name", unique: true, using: :btree
 
 end

@@ -1,4 +1,4 @@
-- if controller_name != 'sessions'
+- if controller_name != 'sessions' && !current_user
   = link_to "Log in", new_session_path(resource_name)
   %br/
 - if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations'
