@@ -16,7 +16,7 @@
         = c.label :instance_type, 'on demand instance'
         = c.radio_button :instance_type, 'OnDemand', checked: true
         - if current_user.admin?
-        = c.lable :instance_type, 'spot instance'
-        = c.radio_button :instance_type, 'Spot'
+          = c.label :instance_type, 'spot instance'
+          = c.radio_button :instance_type, 'Spot'
     .actions
       = f.button 'New Instance', data: {disable_with: "<i class='fa fa-spinner fa-spin'</i>Creating..."}
