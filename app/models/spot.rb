@@ -2,10 +2,10 @@ class Spot < Contract
   after_create :start!
 
   def start
-    instance = 'nothing yet'
+    @instance = 'nothing yet'
     request_zone = spot_instance_params[:launch_specification][:placement][:availability_zone]
     if instance_already_exists_in?( request_zone )
-      instance = ec2_client.request_spot_instances( spot_instance_params )
+      @instance = ec2_client.request_spot_instances( spot_instance_params )
     else
       spot_request = Aws::EC2::Client.new( credentials: creds, region: zone_to_region( request_zone )).
         request_spot_instances( spot_instance_params )
@@ -13,8 +13,8 @@ class Spot < Contract
     begin
       request_ids = spot_request.spot_instance_requests.map(&:spot_instance_request_id)
       ec2_client.wait_until(:spot_instance_request_fulfilled, spot_instance_request_ids: request_ids)
-      instance = ec2_client.describe_spot_instance_requests(spot_instance_request_ids: request_ids)     
-      self.update(instance_id: instance.spot_instance_requests.first.instance_id,
+      @instance = ec2_client.describe_spot_instance_requests(spot_instance_request_ids: request_ids)     
+      self.update(instance_id: @instance.spot_instance_requests.first.instance_id,
         request_id: request_ids.first,
         instance_state: 'running')
       'insance running'
@@ -22,7 +22,7 @@ class Spot < Contract
       "Starting the instance failed with: #{e}"
     end
     set_tags
-    instance
+    @instance
   end
 
   def set_tags
@@ -36,7 +36,7 @@ class Spot < Contract
     ec2_client.describe_instances(filters: [
       {name: 'tag:Name', values: [self.name]},
       {name: 'tag:availability_zone', values: [zone]},
-      {name: 'tag:version', values: [new_version_number]}]).
+      {name: 'tag:version', values: [new_version_number.to_s]}]).
     reservations.count > 0
   end
 
@@ -62,14 +62,14 @@ class Spot < Contract
   end
 
   def spot_instance_params( options={} )
-    image = get_ami
-    best_choice_params = best_choice_for(get_ami(options[:name]))
-    {spot_price: best_choice_params[:spot_price],
+    @image = get_ami
+    @best_choice_params = best_choice_for @image
+    {spot_price: @best_choice_params[:spot_price],
       instance_count: 1, 
       launch_specification: {
-        image_id: image.image_id,
-        instance_type: image.tags.select{|tag| tag.key.eql? "instance_types"}.first.value,
-        placement: {availability_zone: best_choice_params[:availability_zone]},
+        image_id: @image.image_id,
+        instance_type: @image.tags.select{|tag| tag.key.eql? "instance_types"}.first.value,
+        placement: {availability_zone: @best_choice_params[:availability_zone]},
         block_device_mappings: get_block_device_mappings}}
   end
 

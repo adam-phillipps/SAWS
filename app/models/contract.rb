@@ -126,7 +126,7 @@ class Contract < ActiveRecord::Base
   end
 
   def get_block_device_mappings
-    self.smash_client.ec2_client.describe_images(image_ids: [newest_ami(get_ami.image_id)]).
+    ec2_client.describe_images(image_ids: [get_ami.image_id]).
       first.images.first.block_device_mappings
   end
 
