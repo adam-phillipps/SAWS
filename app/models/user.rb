@@ -56,4 +56,8 @@ class User < ActiveRecord::Base
       end
     end
   end
+
+  def self.search(query)
+    where("user_name ?", "%#{query}%") 
+  end
 end

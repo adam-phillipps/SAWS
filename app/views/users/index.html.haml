@@ -13,7 +13,7 @@
   %tbody
     - @users.each do |user|
       %tr
-        %td= user.name
+        %td= user.user_name
         %td= user.password
         %td= user.email
         %td= link_to 'Show', user

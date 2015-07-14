@@ -8,14 +8,17 @@ class Users::RegistrationsController < Devise::RegistrationsController
      super
    end
 
+  def index
+    if params[:search]
+      @users = User.search(params[:search]).order("created_at DESC")
+    else
+      @users = User.all.order('created_at DESC')
+    end
+  end
+
   # POST /resource
   def create
-    if params[:user][:admin].eql? 'true'
-      params[:user][:admin] = true
-    elsif params[:user][:admin].eql? 'false'
-      params[:user][:admin] = false
-    end
-#    params[:user][:admin] = value_to_bool(params[:user][:admin])
+    params[:user][:admin].eql? 'true' ? params[:user][:admin] = true : params[:user][:admin] = false
     build_resource(sign_up_params)
 
     resource.save

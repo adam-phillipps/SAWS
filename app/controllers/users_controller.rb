@@ -4,7 +4,11 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    if params[:search]
+      @users = User.search(params[:search])#.order(created_at: :desc)
+    else
+      @users = User.all#.order(created_at: :desc)
+    end
   end
 
   # GET /users/1
@@ -19,6 +23,7 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
+    byebug
   end
 
   # POST /users
@@ -65,5 +70,9 @@ class UsersController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
       params.require(:user).permit(:name, :password, :email)
+    end
+
+    def show_all_users
+      @users = User.all?
     end
 end

@@ -140,7 +140,11 @@ class Contract < ActiveRecord::Base
       'i2.xlarge' => '30.5-GiB', 'i2.2xlarge' => '61-GiB', 'i2.4xlarge' => '122-GiB', 'i2.8xlarge' => '244-GiB',
       'd2.xlarge' => '30.5-GiB', 'd2.2xlarge' => '61-GiB', 'd2.4xlarge' => '122-GiB', 'd2.8xlarge' => '244-GiB'}
       if self.instance_id
-        @memories[ec2_client.describe_instance_attribute(instance_id: self.instance_id, attribute: 'instanceType').instance_type.first]
+        begin
+          @memories[ec2_client.describe_instance_attribute(instance_id: self.instance_id, attribute: 'instanceType').instance_type.first]
+          rescue
+            nil
+          end
       else
         'unk'
       end
